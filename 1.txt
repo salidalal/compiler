@@ -1,7 +1,8 @@
-/%
+
 func x3() return int{
-	x=6;
-	sgsdg=8;
+	while(true){
+		x=x+6;
+	}
 	
 	for(a=8;b<8;c=d+8){
 		e=f+8;
@@ -12,9 +13,15 @@ func x3() return int{
 	
 	return h;
 }
-%/
+
 
 
 proc Main(){
-x=6;
-y=x+3;}
+if(x){
+	x=6;
+}
+else{
+	y=9;
+	w=10;
+	q=1;
+}}

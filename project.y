@@ -27,7 +27,7 @@ Node *makeNode(char *value, ...);
 void printNode(Node *tree,int tab);
 void printTree();
 void fixRec(Node*temp,Node*n);
-void fixFix(Node*);
+Node* fixFix(Node*);
 
 
 void changeP (Node *parent);
@@ -99,11 +99,13 @@ get_arg:			args_list {  $1->value="ARGS"; $$=$1; }
 				;
 
 args_list:			no_args{ $$ = $1; }
-				|	yes_args{ if($1->size>1){Node*temp = makeNode("",NULL); fixRec($1,temp); fixFix(temp); $1=temp;} $$ = $1; }
+				|	yes_args{ if($1->size>1){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} $$ = $1; }
 				;
-yes_args:			args ':' arg_type { Node*temp = makeNode("",NULL);  fixRec($1,temp); fixFix($1); $$ = makeNode("",$3,temp,NULL); }							
-				|	yes_args ';' args ':' arg_type { Node*temp = makeNode("",NULL); fixRec($3,temp); fixFix(temp);
-													$$=makeNode("REC ARGS", makeNode("",$5,temp,NULL),$1, NULL);}
+				
+			
+yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  $$ = makeNode("",$3,temp,NULL);  }							
+				|	yes_args ';' args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($3,temp);  $3 = makeNode("",$5,temp,NULL); 
+													$$ = makeNode("REC ARGS",$3,$1); }
 				;
 
 args:				id {$$=$1;}
@@ -112,7 +114,9 @@ args:				id {$$=$1;}
 no_args:			/*epsilon*/ {$$=makeNode("NONE",NULL);}
 				;
 
-call_args:			args_2 { if($1->size>1){ Node*temp = makeNode("",NULL); fixRec($1,temp); fixFix(temp); $1=temp;} $$ = $1; }
+
+
+call_args:			args_2 { Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp; }
 				|	no_args { $$ = $1; }
 				;
 
@@ -127,17 +131,17 @@ arg_type: 			type {$$=$1;}
 
 //==================proc and func body===============================
 
-continue_func:		return_va '{' body the_ret '}' { Node*temp = makeNode("",NULL); fixRec($3,temp);  $$ = makeNode("BODY", $1,temp,$4,NULL);}
+continue_func:		return_va '{' body the_ret '}' {  $$ = makeNode("BODY", $1,$3,$4,NULL);}
 				;
 
 proc_id: 			id {$$=$1;}
 				;
 
-continue_proc:		'{' body '}' { Node*temp = makeNode("BODY",NULL); fixRec($2,temp); fixFix(temp);  $$ = temp; }
+
+continue_proc:		'{' body '}' { $2->value="BODY"; $$=$2;}
 				;
 
-
-body:				statmentss {Node*temp = makeNode("",NULL); fixRec($1,temp); fixFix(temp); $$ = temp;}
+body:				statmentss {Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp;}
 				;
 
 
@@ -164,7 +168,7 @@ statment:				call semico {$$=$1;}
 					|	while_statment {$$=$1;}
 					|	initign_statment  {$$=$1;}
 					|	var_decls {  $1->value="VAR"; $$=$1; }
-					|	'{' statments '}'	{$2->value="BLOCK"; $$=$2;}
+					|	'{' statmentss '}'	{Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
 					| 	/*epsilon*/ {}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
@@ -173,10 +177,10 @@ statment:				call semico {$$=$1;}
 semico:					';'
 					;					
 
-statments:				statmentss {Node*temp = makeNode("",NULL); fixRec($1,temp); fixFix(temp); $$ = temp;}
+statments:				statmentss {Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp;}
 					;
 
-statmentss:				statmentss statment {$$=makeNode("REC ARGS",$1,$2, NULL);}
+statmentss:				statmentss statment {$$=makeNode("REC ARGS",$2,$1, NULL);}
 					|	statment	{ $$=$1;}
 					;
 
@@ -186,8 +190,7 @@ statmentss:				statmentss statment {$$=makeNode("REC ARGS",$1,$2, NULL);}
 
 
 
-
-var_decls:				VAR ids ':' type ';' {Node*temp = makeNode("",NULL); fixRec($2,temp); fixFix(temp); $$ = makeNode("",$4,temp,NULL);}
+var_decls:				VAR ids ':' type ';' {Node*temp = makeNode("",NULL);fixRec($2,temp); $$=makeNode("",$4,temp,NULL);}
 					;
 
 ids: 					ids ',' id {$$=makeNode("REC ARGS",$3,$1,NULL);}
@@ -199,10 +202,10 @@ initign_statment:		lhs EQ expression semico {$$=makeNode("=",$1,$3,NULL); }
 
 					
 
-if_statment:			IF '(' expression ')' block else_statment {$$=makeNode("",makeNode("IF",$3,$5,NULL), $6,NULL );}
+if_statment:			IF '(' expression ')' statment else_statment {$$=makeNode("",makeNode("IF",$3,$5,NULL), $6,NULL ); }
 					;
 
-else_statment:			ELSE block { $$= makeNode("ELSE",$2,NULL); }
+else_statment:			ELSE statment { $$= makeNode("ELSE",$2,NULL); }
 					|	/*epsilon*/{$$=NULL;};
 					;
 
@@ -222,9 +225,9 @@ init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
 conditions:			expression 
 					;
 
-
 block: 					'{' '}' {$$=makeNode("EMPTY BLOCK",NULL);}	
-					|	'{' statmentss '}' {Node*temp = makeNode("",NULL); fixRec($2,temp); fixFix(temp); $$ = makeNode("BLOCK",temp,NULL);}
+					|	'{' statmentss '}' {Node*temp = makeNode("BLOCK",NULL); fixRec($2,temp);   $$=temp;}
+					|	statment {$$=$1;}
 					;
 
 	
@@ -368,7 +371,7 @@ void fixRec(Node*temp,Node*n){
 
 	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
-	if(temp->size==0  || (strcmp(temp->value,"=") == 0) ){
+	if(temp->size==0  || !(strcmp(temp->value,"=") == 0)  ){
 		addToTree(temp,n);
 		return;
 	}
@@ -392,7 +395,7 @@ void fixRec(Node*temp,Node*n){
 }
 
 void printNode(Node *n,int tab)
-{/*
+{
 	
     for (int i = 1; i < tab; i++) {
         printf("   ");
@@ -450,12 +453,11 @@ void changeP (Node *parent){
 
 
 
-void fixFix (Node*temp){
-	if(temp->size>1){
-		Node*helper = temp->sons[1];
-		temp->sons[1]=temp->sons[0];
-		temp->sons[0] = helper;
-	}
+Node* fixFix (Node*temp){
+	Node* newNode = makeNode(temp->value,NULL);
+	for(int i =temp->size -1; i>=0; i--)
+		addToTree(temp->sons[i],newNode);
+	return newNode;
 }
 
 
