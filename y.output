@@ -18,12 +18,8 @@ State 41 conflicts: 9 shift/reduce
 State 46 conflicts: 9 shift/reduce, 2 reduce/reduce
 State 76 conflicts: 9 shift/reduce, 1 reduce/reduce
 State 131 conflicts: 9 shift/reduce
-State 149 conflicts: 1 shift/reduce
-State 150 conflicts: 1 shift/reduce
-State 151 conflicts: 1 shift/reduce
-State 176 conflicts: 9 shift/reduce
-State 186 conflicts: 10 shift/reduce
-State 187 conflicts: 1 shift/reduce
+State 176 conflicts: 10 shift/reduce
+State 187 conflicts: 10 shift/reduce
 
 
 Grammar
@@ -121,7 +117,7 @@ Grammar
 
    58 init: lhs EQ expression
 
-   59 block: %empty
+   59 block: '{' '}'
    60      | '{' statmentss '}'
 
    61 expression: expression PLUS expression
@@ -197,9 +193,9 @@ $end (0) 0
 ';' (59) 13 33 44 48
 '[' (91) 77
 ']' (93) 77
-'{' (123) 22 24 40 60
+'{' (123) 22 24 40 59 60
 '|' (124) 100 101
-'}' (125) 22 24 40 60
+'}' (125) 22 24 40 59 60
 error (256)
 TYPE_BOOL (258) 28 89
 TYPE_CHAR (259) 27 90
@@ -2350,9 +2346,6 @@ State 149
 
     '{'  shift, and go to state 176
 
-    '{'       [reduce using rule 59 (block)]
-    $default  reduce using rule 59 (block)
-
     block  go to state 177
 
 
@@ -2362,9 +2355,6 @@ State 150
 
     '{'  shift, and go to state 176
 
-    '{'       [reduce using rule 59 (block)]
-    $default  reduce using rule 59 (block)
-
     block  go to state 178
 
 
@@ -2373,9 +2363,6 @@ State 151
    56 for_statment: FOR '(' for_cond ')' . block
 
     '{'  shift, and go to state 176
-
-    '{'       [reduce using rule 59 (block)]
-    $default  reduce using rule 59 (block)
 
     block  go to state 179
 
@@ -2828,7 +2815,8 @@ State 175
 
 State 176
 
-   60 block: '{' . statmentss '}'
+   59 block: '{' . '}'
+   60      | '{' . statmentss '}'
 
     IF     shift, and go to state 35
     WHILE  shift, and go to state 36
@@ -2839,22 +2827,23 @@ State 176
     ID     shift, and go to state 40
     DEREF  shift, and go to state 12
     '{'    shift, and go to state 41
+    '}'    shift, and go to state 186
 
-    IF        [reduce using rule 41 (statment)]
-    WHILE     [reduce using rule 41 (statment)]
-    FOR       [reduce using rule 41 (statment)]
-    PROC      [reduce using rule 41 (statment)]
-    FUNC      [reduce using rule 41 (statment)]
-    VAR       [reduce using rule 41 (statment)]
-    ID        [reduce using rule 41 (statment)]
-    DEREF     [reduce using rule 41 (statment)]
-    '{'       [reduce using rule 41 (statment)]
-    $default  reduce using rule 41 (statment)
+    IF     [reduce using rule 41 (statment)]
+    WHILE  [reduce using rule 41 (statment)]
+    FOR    [reduce using rule 41 (statment)]
+    PROC   [reduce using rule 41 (statment)]
+    FUNC   [reduce using rule 41 (statment)]
+    VAR    [reduce using rule 41 (statment)]
+    ID     [reduce using rule 41 (statment)]
+    DEREF  [reduce using rule 41 (statment)]
+    '{'    [reduce using rule 41 (statment)]
+    '}'    [reduce using rule 41 (statment)]
 
     func              go to state 42
     proc              go to state 43
     statment          go to state 45
-    statmentss        go to state 186
+    statmentss        go to state 187
     var_decls         go to state 47
     initign_statment  go to state 48
     if_statment       go to state 49
@@ -2869,11 +2858,11 @@ State 177
 
    52 if_statment: IF '(' expression ')' block . else_statment
 
-    ELSE  shift, and go to state 187
+    ELSE  shift, and go to state 188
 
     $default  reduce using rule 54 (else_statment)
 
-    else_statment  go to state 188
+    else_statment  go to state 189
 
 
 State 178
@@ -2920,7 +2909,7 @@ State 180
     PLUS    shift, and go to state 147
     MUL     shift, and go to state 148
 
-    semico  go to state 189
+    semico  go to state 190
 
 
 State 181
@@ -3012,7 +3001,7 @@ State 184
     '('         shift, and go to state 102
     '|'         shift, and go to state 103
 
-    expression  go to state 190
+    expression  go to state 191
     value       go to state 105
     id          go to state 106
     ref         go to state 107
@@ -3030,10 +3019,17 @@ State 185
 
    22 continue_func: return_va '{' body the_ret . '}'
 
-    '}'  shift, and go to state 191
+    '}'  shift, and go to state 192
 
 
 State 186
+
+   59 block: '{' '}' .
+
+    $default  reduce using rule 59 (block)
+
+
+State 187
 
    46 statmentss: statmentss . statment
    60 block: '{' statmentss . '}'
@@ -3047,7 +3043,7 @@ State 186
     ID     shift, and go to state 40
     DEREF  shift, and go to state 12
     '{'    shift, and go to state 41
-    '}'    shift, and go to state 192
+    '}'    shift, and go to state 193
 
     IF     [reduce using rule 41 (statment)]
     WHILE  [reduce using rule 41 (statment)]
@@ -3073,38 +3069,35 @@ State 186
     call              go to state 54
 
 
-State 187
+State 188
 
    53 else_statment: ELSE . block
 
     '{'  shift, and go to state 176
 
-    '{'       [reduce using rule 59 (block)]
-    $default  reduce using rule 59 (block)
-
-    block  go to state 193
+    block  go to state 194
 
 
-State 188
+State 189
 
    52 if_statment: IF '(' expression ')' block else_statment .
 
     $default  reduce using rule 52 (if_statment)
 
 
-State 189
+State 190
 
    57 for_cond: init semico expression semico . init
 
     ID     shift, and go to state 40
     DEREF  shift, and go to state 12
 
-    init  go to state 194
+    init  go to state 195
     lhs   go to state 119
     id    go to state 120
 
 
-State 190
+State 191
 
    33 the_ret: RETURN expression . ';'
    61 expression: expression . PLUS expression
@@ -3120,7 +3113,7 @@ State 190
    72           | expression . OR expression
    73           | expression . AND expression
 
-    ';'     shift, and go to state 195
+    ';'     shift, and go to state 196
     AND     shift, and go to state 137
     DIVIDE  shift, and go to state 138
     EQEQ    shift, and go to state 139
@@ -3135,35 +3128,35 @@ State 190
     MUL     shift, and go to state 148
 
 
-State 191
+State 192
 
    22 continue_func: return_va '{' body the_ret '}' .
 
     $default  reduce using rule 22 (continue_func)
 
 
-State 192
+State 193
 
    60 block: '{' statmentss '}' .
 
     $default  reduce using rule 60 (block)
 
 
-State 193
+State 194
 
    53 else_statment: ELSE block .
 
     $default  reduce using rule 53 (else_statment)
 
 
-State 194
+State 195
 
    57 for_cond: init semico expression semico init .
 
     $default  reduce using rule 57 (for_cond)
 
 
-State 195
+State 196
 
    33 the_ret: RETURN expression ';' .
 

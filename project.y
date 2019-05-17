@@ -223,7 +223,7 @@ conditions:			expression
 					;
 
 
-block: 					{$$=NULL;}	
+block: 					'{' '}' {$$=makeNode("EMPTY BLOCK",NULL);}	
 					|	'{' statmentss '}' {Node*temp = makeNode("",NULL); fixRec($2,temp); fixFix(temp); $$ = makeNode("BLOCK",temp,NULL);}
 					;
 
@@ -366,12 +366,17 @@ Node *makeNode( char *value, ...)
 void fixRec(Node*temp,Node*n){
 
 
-	printf("-%s-\n",temp->value);;
+	printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
-	if(temp->size==0){
+	if(temp->size==0  || (strcmp(temp->value,"=") == 0) ){
 		addToTree(temp,n);
 		return;
 	}
+	else{
+			printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
+
+	}
+
 	
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
 	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
@@ -387,7 +392,7 @@ void fixRec(Node*temp,Node*n){
 }
 
 void printNode(Node *n,int tab)
-{
+{/*
 	
     for (int i = 1; i < tab; i++) {
         printf("   ");
@@ -405,8 +410,8 @@ void printNode(Node *n,int tab)
         }
         printf(")\n\n"); 
 	}
-	
-/*
+	*/
+
 	    int i;
 
     printf("Node: %s\n", n->value);
@@ -421,7 +426,7 @@ void printNode(Node *n,int tab)
 	
         printNode((n->sons)[i],0);
 }
-	*/
+	
 }
 
 
