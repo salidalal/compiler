@@ -2386,8 +2386,8 @@ void fixRec(Node*temp,Node*n){
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
 	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
 	{
-		addToTree(temp->sons[0],n);
 		addToTree(temp->sons[1],n);
+		addToTree(temp->sons[0],n);
 	}
 	else
 	{

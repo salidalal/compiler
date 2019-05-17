@@ -366,14 +366,14 @@ Node *makeNode( char *value, ...)
 void fixRec(Node*temp,Node*n){
 
 
-	printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
+	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
 	if(temp->size==0  || (strcmp(temp->value,"=") == 0) ){
 		addToTree(temp,n);
 		return;
 	}
 	else{
-			printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
+			//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
 	}
 
@@ -381,8 +381,8 @@ void fixRec(Node*temp,Node*n){
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
 	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
 	{
-		addToTree(temp->sons[0],n);
 		addToTree(temp->sons[1],n);
+		addToTree(temp->sons[0],n);
 	}
 	else
 	{
@@ -410,7 +410,7 @@ void printNode(Node *n,int tab)
         }
         printf(")\n\n"); 
 	}
-	*/
+	/*
 
 	    int i;
 
@@ -426,7 +426,7 @@ void printNode(Node *n,int tab)
 	
         printNode((n->sons)[i],0);
 }
-	
+	*/
 }
 
 

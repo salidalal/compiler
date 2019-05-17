@@ -1,4 +1,4 @@
-
+/%
 func x3() return int{
 	x=6;
 	sgsdg=8;
@@ -12,9 +12,9 @@ func x3() return int{
 	
 	return h;
 }
-
+%/
 
 
 proc Main(){
-
+x=6;
 y=x+3;}
