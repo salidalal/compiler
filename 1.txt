@@ -1,9 +1,11 @@
 func x3() return int{
 	x=6;
 	sgsdg=8;
-	
-	x=5;
-	return x;
+	for(a=8;b<8;c=d+8){
+		e=f+8;
+	}
+	g=5;
+	return h;
 }
 
 

@@ -212,28 +212,19 @@ while_statment:			WHILE '(' expression ')' block {$$=makeNode("WHILE",$3,$5,NULL
 for_statment:			FOR '(' for_cond ')' block { $$=makeNode("FOR",$3,$5,NULL);}
 					;
 
-for_cond:				init semico conditions semico init {$$=makeNode("",$1,$2,$4,NULL);}
+for_cond:				init semico expression semico init {$$=makeNode("",$1,$3,$5,NULL);}
 					;
 
 init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
 					;
 
 
-conditions:			|	expression GT expression {$$=makeNode(">",$1,$3,NULL);}
-					|	expression GTE expression {$$=makeNode(">=" ,$1,$3,NULL);}
-					|	expression LT expression {$$=makeNode("<",$1,$3,NULL);}
-					|	expression LTE expression {$$=makeNode("<=",$1,$3,NULL);}
-					|	expression NOT expression {$$=makeNode("!",$1,$3,NULL);}
-					|	expression NOTEQ expression {$$=makeNode("!=",$1,$3,NULL);}
-					|	expression OR expression {$$=makeNode("||",$1,$3,NULL);}	
-					|	expression AND expression {$$=makeNode("&&",$1,$3,NULL);}
-					|	'(' expression ')' {$$=$1;}
-					|	value {$$=$1;}	
+conditions:			expression 
 					;
 
 
 block: 					{$$=NULL;}	
-					|	'{' statments '}' {$2->value="BLOCK"; $$=$2;}
+					|	'{' statmentss '}' {Node*temp = makeNode("",NULL); fixRec($2,temp); fixFix(temp); $$ = makeNode("BLOCK",temp,NULL);}
 					;
 
 	
@@ -247,10 +238,11 @@ expression:				expression PLUS expression {$$=makeNode("+",$1,$3,NULL);}
 					|	expression GTE expression {$$=makeNode(">=",$1,$3,NULL);}
 					|	expression LT expression {$$=makeNode("<",$1,$3,NULL);}
 					|	expression LTE expression {$$=makeNode("<=",$1,$3,NULL);}
-					|	expression NOT expression {$$=makeNode("!",$1,$3,NULL);}
+					|	NOT expression {$$=makeNode("!",$2,NULL);}
 					|	expression NOTEQ expression {$$=makeNode("!=",$1,$3,NULL);}
 					|	expression OR expression {$$=makeNode("||",$1,$3,NULL);}	
 					|	expression AND expression {$$=makeNode("&&",$1,$3,NULL);}	
+					|	'(' expression ')' {$$=$2;}
 					|	value {$$=$1;}
 					;
 
