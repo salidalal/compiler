@@ -1,0 +1,14 @@
+func x3() return int{
+	x=6;
+	sgsdg=8;
+	
+	x=5;
+	return x;
+}
+
+
+
+proc Main(){
+x=6;
+x=4;
+y=x+3;}
