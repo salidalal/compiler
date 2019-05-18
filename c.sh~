@@ -1,0 +1,10 @@
+#! /bin/bash
+if [ $1 = "-d" ]; then
+    rm y.tab.c y.tab.h lex.yy.c ass1
+elif [ $1 ="-r" ]; then
+    ./ass1<try.t
+else
+    yacc -d ass1.y
+    lex ass1.l
+    cc -o ass1 y.tab.c
+fi

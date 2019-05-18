@@ -125,11 +125,14 @@ void fixRec(Node*temp,Node*n){
 
 	if(temp->size==0  || (strcmp(temp->value,"=") == 0) || (strcmp(temp->value,"IF-ELSE") == 0) || (strcmp(temp->value,"IF") == 0)
     || (strcmp(temp->value,"NONE") == 0) || (strcmp(temp->value,"WHILE") == 0) || (strcmp(temp->value,"FOR") == 0)
-    || (strcmp(temp->value,"VAR") == 0) || (strcmp(temp->value,"ARFS") == 0)  ){
+    || (strcmp(temp->value,"VAR") == 0) || (strcmp(temp->value,"ARGS") == 0) || (strcmp(temp->value,"PROC") == 0) 
+    || (strcmp(temp->value,"FUNC") == 0) || (strcmp(temp->value,"ARGS") == 0) || (strcmp(temp->value,"ARR") == 0) ){
 		addToTree(temp,n);
 		return;
 	}
 
+    else if (strcmp(temp->value,"EMPTY") == 0)
+        return;
 
 	
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);

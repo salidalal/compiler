@@ -5,7 +5,6 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include "node.c"
-#include "symbol.c"
 
 
 
@@ -152,7 +151,7 @@ statment:				call semico {$$=$1;}
 					|	initign_statment  {$$=$1;}
 					|	var_decls {  $1->value="VAR"; $$=$1; }
 					|	'{' statmentss '}'	{ Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
-					| 	/*epsilon*/ {}
+					| 	/*epsilon*/ { $$ = makeNode("EMPTY",NULL);}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
 					;
@@ -204,7 +203,7 @@ init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
 					;
 
 
-block: 					'{' '}' {$$=makeNode("EMPTY BLOCK",NULL);}	
+block: 					'{' '}' {$$=makeNode("EMPTY",NULL);}	
 					|	statment {$$=$1;}
 					;
 
@@ -304,7 +303,7 @@ void closeTree(){
 	changeP(tree);
 
 	printTree(tree);
-	initScopes(tree);
-	 printScopes();
+	//initScopes(tree);
+	 //printScopes();
 
 }

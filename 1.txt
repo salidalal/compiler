@@ -23,7 +23,6 @@ func x3(x,y,t,a,e:real; r:int) return int{
 
 
 proc Main(){
-var x,y,e:int;
 
 }
 
