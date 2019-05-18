@@ -3,53 +3,7 @@
 #include<string.h>
 #include <stdarg.h>
 #include <malloc.h>
-
-
-typedef struct Node{
-	struct Node **sons;
-	int size;
-	struct Node *parent;
-	char *value;
-} Node;
-
-
-void addToTree(Node*,Node*);
-Node *makeNode(char *value, ...);
-void printNode(Node *tree,int tab);
-void printTree(Node* tree);
-void fixRec(Node*temp,Node*n);
-Node* fixFix(Node*);
-
-
-void changeP (Node *parent);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#include "part2.h"
 
 
 
@@ -116,6 +70,18 @@ Node *makeNode( char *value, ...)
     }
 	return newNode;
 }
+
+
+int getChildIndex(Node *father, Node *child){
+    int i = 0;
+    for(i=0; i<father->size; i++){
+        if(father->sons[i] == child)
+            return i;
+    }
+    return -1;
+}
+
+
 
 
 void fixRec(Node*temp,Node*n){
