@@ -1,5 +1,5 @@
 
-func x3() return int{
+func x3(x,y,t,a,e:real; r:int) return int{
 	while(true){
 		x=x+6;
 	}
@@ -10,18 +10,20 @@ func x3() return int{
 		
 	}
 	g=5;
+	proc sali(){
+		var x,y,t:int;
+		sali = x;
+		rosh =sfsfsf;
+	}
 	
 	return h;
+
 }
 
 
 
 proc Main(){
-if(x){
-	x=6;
+var x,y,e:int;
+
 }
-else{
-	y=9;
-	w=10;
-	q=1;
-}}
+

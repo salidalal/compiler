@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 #include <stdarg.h>
-#include <string.h>
 #include <malloc.h>
 
 
@@ -13,17 +13,45 @@ typedef struct Node{
 } Node;
 
 
-
 void addToTree(Node*,Node*);
 Node *makeNode(char *value, ...);
 void printNode(Node *tree,int tab);
 void printTree(Node* tree);
 void fixRec(Node*temp,Node*n);
-void fixFix(Node*);
+Node* fixFix(Node*);
 
 
 void changeP (Node *parent);
-void closeTree(Node* tree);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void addToTree(Node* son, Node* parent)
@@ -93,18 +121,22 @@ Node *makeNode( char *value, ...)
 void fixRec(Node*temp,Node*n){
 
 
-	printf("-%s-\n",temp->value);;
+	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
-	if(temp->size==0){
+	if(temp->size==0  || (strcmp(temp->value,"=") == 0) || (strcmp(temp->value,"IF-ELSE") == 0) || (strcmp(temp->value,"IF") == 0)
+    || (strcmp(temp->value,"NONE") == 0) || (strcmp(temp->value,"WHILE") == 0) || (strcmp(temp->value,"FOR") == 0)
+    || (strcmp(temp->value,"VAR") == 0) || (strcmp(temp->value,"ARFS") == 0)  ){
 		addToTree(temp,n);
 		return;
 	}
+
+
 	
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
 	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
 	{
-		addToTree(temp->sons[0],n);
 		addToTree(temp->sons[1],n);
+		addToTree(temp->sons[0],n);
 	}
 	else
 	{
@@ -132,8 +164,8 @@ void printNode(Node *n,int tab)
         }
         printf(")\n\n"); 
 	}
-	
-/*
+	/*
+
 	    int i;
 
     printf("Node: %s\n", n->value);
@@ -153,13 +185,6 @@ void printNode(Node *n,int tab)
 
 
 
-void closeTree(Node* tree){
-	changeP(tree);
-
-	printTree(tree);
-	changeP(tree);
-
-}
 
 
 
@@ -172,10 +197,10 @@ void changeP (Node *parent){
 
 
 
-void fixFix (Node*temp){
-	if(temp->size>1){
-		Node*helper = temp->sons[1];
-		temp->sons[1]=temp->sons[0];
-		temp->sons[0] = helper;
-	}
+Node* fixFix (Node*temp){
+	Node* newNode = makeNode(temp->value,NULL);
+	for(int i =temp->size -1; i>=0; i--)
+		addToTree(temp->sons[i],newNode);
+	return newNode;
 }
+

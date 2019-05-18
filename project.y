@@ -4,17 +4,8 @@
 #include<string.h>
 #include <stdarg.h>
 #include <malloc.h>
-
-
-typedef struct Node{
-	struct Node **sons;
-	int size;
-	struct Node *parent;
-	char *value;
-} Node;
-
-
-
+#include "node.c"
+#include "symbol.c"
 
 
 
@@ -22,15 +13,7 @@ Node * tree;
 int size =0;
 
 
-void addToTree(Node*,Node*);
-Node *makeNode(char *value, ...);
-void printNode(Node *tree,int tab);
-void printTree();
-void fixRec(Node*temp,Node*n);
-Node* fixFix(Node*);
 
-
-void changeP (Node *parent);
 void closeTree();
 
 int yylex(void);
@@ -98,7 +81,7 @@ main:				PROC MAIN '(' ')' continue_proc { $$=makeNode("MAIN",$5,NULL); };
 get_arg:			args_list {  $1->value="ARGS"; $$=$1; }
 				;
 
-args_list:			no_args{ $$ = $1; }
+args_list:			no_args{  $$ = $1; }
 				|	yes_args{ if($1->size>1){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} $$ = $1; }
 				;
 				
@@ -168,7 +151,7 @@ statment:				call semico {$$=$1;}
 					|	while_statment {$$=$1;}
 					|	initign_statment  {$$=$1;}
 					|	var_decls {  $1->value="VAR"; $$=$1; }
-					|	'{' statmentss '}'	{ printf("IMHERE"); Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
+					|	'{' statmentss '}'	{ Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
 					| 	/*epsilon*/ {}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
@@ -177,8 +160,6 @@ statment:				call semico {$$=$1;}
 semico:					';'
 					;					
 
-statments:				statmentss {Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp;}
-					;
 
 statmentss:				statmentss statment {$$=makeNode("REC ARGS",$2,$1, NULL);}
 					|	statment	{ $$=$1;}
@@ -202,7 +183,8 @@ initign_statment:		lhs EQ expression semico {$$=makeNode("=",$1,$3,NULL); }
 
 					
 
-if_statment:			IF '(' expression ')' statment else_statment {$$=makeNode("",makeNode("IF",$3,$5,NULL), $6,NULL ); }
+if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IF-ELSE",makeNode("IF",$3,$5,NULL),$6,NULL);}
+																		else {$$ = makeNode("IF",$3,$5,NULL); }   }
 					;
 
 else_statment:			ELSE statment { $$= makeNode("ELSE",$2,NULL); }
@@ -222,11 +204,7 @@ init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
 					;
 
 
-conditions:			expression 
-					;
-
 block: 					'{' '}' {$$=makeNode("EMPTY BLOCK",NULL);}	
-					|	'{' statmentss '}' {Node*temp = makeNode("BLOCK",NULL); fixRec($2,temp);   $$=temp;}
 					|	statment {$$=$1;}
 					;
 
@@ -302,164 +280,6 @@ int main(){
 
 
 
-void addToTree(Node* son, Node* parent)
-{
-
-	int i;
-    
-    Node **temp = NULL;
-    //For first child
-    if(parent->size == 0){
-        parent->sons = (Node**) malloc (sizeof(Node*));
-        (parent->sons)[0] = son;
-    }
-    else{
-        temp = (Node **) malloc (((parent->size) + 1) * (sizeof(Node*)));
-        for(i = 0; i < parent->size; i++)
-            temp[i] = (parent->sons)[i];
-        temp[parent->size] = son;
-        free(parent->sons);
-        parent->sons = temp;
-	}
-	(parent->size) ++;
-	
-}
-
-
-void printTree(){
-	printNode(tree,1);
-}
-
-
-Node *makeNode( char *value, ...)
-{
-	int i, count = 0;
-    va_list countPointer, listPointer;
-    Node *newNode = (Node *) malloc (sizeof(Node));
-    Node *getArg = NULL;
-
-    //Initializing token
-    newNode->value = (char *) malloc ((strlen(value)+1)*sizeof(char));
-    strcpy(newNode->value, value);
-    //Counting number of arguments passed
-    va_start(countPointer, value);
-    do{
-        getArg = va_arg(countPointer, Node *);
-        if(getArg != NULL)
-            count++;
-    }while(getArg != NULL);
-
-    //Assigining children to array
-    if(count != 0){
-        newNode->size = count;
-        va_start(listPointer, value);
-        newNode->sons = (Node**) malloc (count * sizeof(Node *));
-        for(i = 0; i < count; i++){
-            (newNode->sons)[i] = va_arg(listPointer, Node *);
-        }     
-    }
-    else{
-        newNode->sons = NULL;
-        newNode->size = 0;
-    }
-	return newNode;
-}
-
-
-void fixRec(Node*temp,Node*n){
-
-
-	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
-
-	if(temp->size==0  || (strcmp(temp->value,"=") == 0)  ){
-		addToTree(temp,n);
-		return;
-	}
-	else{
-			//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
-
-	}
-
-	
-	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
-	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
-	{
-		addToTree(temp->sons[1],n);
-		addToTree(temp->sons[0],n);
-	}
-	else
-	{
-		fixRec(temp->sons[1],n);
-		addToTree(temp->sons[0],n);
-	}
-}
-
-void printNode(Node *n,int tab)
-{
-	
-    for (int i = 1; i < tab; i++) {
-        printf("   ");
-    }
-    if(n->size!=0)
-        printf("(");    
-    printf("%s\n", n->value);
-
-    for (int i = 0; i < n->size; i++) {
-        printNode((n->sons)[i], tab + 1);
-    }
-    if(n->size!=0){ 
-        for (int i = 1; i < tab; i++) {
-            printf("   ");
-        }
-        printf(")\n\n"); 
-	}
-	/*
-
-	    int i;
-
-    printf("Node: %s\n", n->value);
-    if(n->size == 0)
-        printf("No children\n");
-    else{
-    printf("Children:\n");
-    for (i = 0; i < n->size; i++) 
-        printf("%s ", (n->sons)[i]->value);
-	printf("\n");
-    for (i = 0; i < n->size; i++) 
-	
-        printNode((n->sons)[i],0);
-}
-	*/
-}
-
-
-
-void closeTree(){
-	changeP(tree);
-
-	printTree();
-	changeP(tree);
-
-}
-
-
-
-void changeP (Node *parent){
-  for(int i=0; i<parent->size; i++){
-      parent->sons[i]->parent = parent;
-      changeP(parent->sons[i] );
-  }
-}
-
-
-
-Node* fixFix (Node*temp){
-	Node* newNode = makeNode(temp->value,NULL);
-	for(int i =temp->size -1; i>=0; i--)
-		addToTree(temp->sons[i],newNode);
-	return newNode;
-}
-
 
 
 
@@ -475,4 +295,16 @@ char * concat (const char* s1, const char* s2) {
 	strcpy(result,s1);
 	strcat(result,s2);
 	return result;
+}
+
+
+
+
+void closeTree(){
+	changeP(tree);
+
+	printTree(tree);
+	initScopes(tree);
+	 printScopes();
+
 }
