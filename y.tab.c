@@ -1730,7 +1730,7 @@ yyreduce:
 
   case 41:
 #line 171 "project.y" /* yacc.c:1646  */
-    {Node*temp = makeNode("BLOCK",NULL);fixRec((yyvsp[-1]),temp);   (yyval)=temp;}
+    { printf("IMHERE"); Node*temp = makeNode("BLOCK",NULL);fixRec((yyvsp[-1]),temp);   (yyval)=temp;}
 #line 1735 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2385,7 +2385,7 @@ void fixRec(Node*temp,Node*n){
 
 	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
-	if(temp->size==0  || !(strcmp(temp->value,"=") == 0)  ){
+	if(temp->size==0  || (strcmp(temp->value,"=") == 0)  ){
 		addToTree(temp,n);
 		return;
 	}

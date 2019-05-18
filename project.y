@@ -168,7 +168,7 @@ statment:				call semico {$$=$1;}
 					|	while_statment {$$=$1;}
 					|	initign_statment  {$$=$1;}
 					|	var_decls {  $1->value="VAR"; $$=$1; }
-					|	'{' statmentss '}'	{Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
+					|	'{' statmentss '}'	{ printf("IMHERE"); Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
 					| 	/*epsilon*/ {}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
@@ -371,7 +371,7 @@ void fixRec(Node*temp,Node*n){
 
 	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
-	if(temp->size==0  || !(strcmp(temp->value,"=") == 0)  ){
+	if(temp->size==0  || (strcmp(temp->value,"=") == 0)  ){
 		addToTree(temp,n);
 		return;
 	}
