@@ -64,7 +64,7 @@ code_pros:			code_pros proc	{addToTree($2,tree);}
 				|	/*epsilon*/
 				;
 
-func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {$$=makeNode("FUNC",$2,$4,$7,NULL);}
+func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],$7->sons[2],NULL);}
 				;
 
 
@@ -85,8 +85,8 @@ args_list:			no_args{  $$ = $1; }
 				;
 				
 			
-yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  $$ = makeNode("",$3,temp,NULL);  }							
-				|	yes_args ';' args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($3,temp);  $3 = makeNode("",$5,temp,NULL); 
+yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  $$ = makeNode($3->value,temp,NULL);  }							
+				|	yes_args ';' args ':' arg_type {    Node*temp = makeNode("",NULL);fixRec($3,temp);  $3 = makeNode("",$5,temp,NULL); 
 													$$ = makeNode("REC ARGS",$3,$1); }
 				;
 
@@ -123,7 +123,7 @@ proc_id: 			id {$$=$1;}
 continue_proc:		'{' body '}' { $2->value="BODY"; $$=$2;}
 				;
 
-body:				statmentss {Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp;}
+body:				statmentss {Node*temp = makeNode("BODY",NULL);fixRec($1,temp); $$=temp;}
 				;
 
 
@@ -193,7 +193,7 @@ else_statment:			ELSE statment { $$= makeNode("ELSE",$2,NULL); }
 while_statment:			WHILE '(' expression ')' block {$$=makeNode("WHILE",$3,$5,NULL);}
 					;
 
-for_statment:			FOR '(' for_cond ')' block { $$=makeNode("FOR",$3,$5,NULL);}
+for_statment:			FOR '(' for_cond ')' block { $$=makeNode("FOR",$3->sons[0],$3->sons[1],$3->sons[2],$5,NULL);}
 					;
 
 for_cond:				init semico expression semico init {$$=makeNode("",$1,$3,$5,NULL);}

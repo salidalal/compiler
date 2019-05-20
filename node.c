@@ -100,7 +100,10 @@ void fixRec(Node*temp,Node*n){
     else if (strcmp(temp->value,"EMPTY") == 0)
         return;
 
+
+    else if (strcmp(temp->value,"") == 0)
 	
+
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
 	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
 	{

@@ -1503,7 +1503,7 @@ yyreduce:
 
   case 7:
 #line 67 "project.y" /* yacc.c:1646  */
-    {(yyval)=makeNode("FUNC",(yyvsp[-5]),(yyvsp[-3]),(yyvsp[0]),NULL);}
+    {(yyval)=makeNode("FUNC",(yyvsp[-5]),(yyvsp[-3]),(yyvsp[0])->sons[0],(yyvsp[0])->sons[1],(yyvsp[0])->sons[2],NULL);}
 #line 1508 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1539,13 +1539,13 @@ yyreduce:
 
   case 13:
 #line 88 "project.y" /* yacc.c:1646  */
-    {Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  (yyval) = makeNode("",(yyvsp[0]),temp,NULL);  }
+    {Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  (yyval) = makeNode((yyvsp[0])->value,temp,NULL);  }
 #line 1544 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
 #line 89 "project.y" /* yacc.c:1646  */
-    {Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  (yyvsp[-2]) = makeNode("",(yyvsp[0]),temp,NULL); 
+    {    Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  (yyvsp[-2]) = makeNode("",(yyvsp[0]),temp,NULL); 
 													(yyval) = makeNode("REC ARGS",(yyvsp[-2]),(yyvsp[-4])); }
 #line 1551 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -1618,7 +1618,7 @@ yyreduce:
 
   case 26:
 #line 126 "project.y" /* yacc.c:1646  */
-    {Node*temp = makeNode("",NULL);fixRec((yyvsp[0]),temp); (yyval)=temp;}
+    {Node*temp = makeNode("BODY",NULL);fixRec((yyvsp[0]),temp); (yyval)=temp;}
 #line 1623 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1793,7 +1793,7 @@ yyreduce:
 
   case 56:
 #line 196 "project.y" /* yacc.c:1646  */
-    { (yyval)=makeNode("FOR",(yyvsp[-2]),(yyvsp[0]),NULL);}
+    { (yyval)=makeNode("FOR",(yyvsp[-2])->sons[0],(yyvsp[-2])->sons[1],(yyvsp[-2])->sons[2],(yyvsp[0]),NULL);}
 #line 1798 "y.tab.c" /* yacc.c:1646  */
     break;
 
