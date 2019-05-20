@@ -61,6 +61,25 @@ void addTable(SymTable *tbl){
 }
 
 
+Symbol * findSym(SymTable *table, char *id){
+    Symbol *search = table->head;
+    while(search){
+        if(!strcmp(search->id, id))
+            return search;
+        search = search->next;
+    }
+    return search;
+}
+
+SymTable * findTbl(Node *scopePtr){
+    SymTable *search = scopes_head;
+    while(search){
+        if(search->scopePtr == scopePtr)
+            return search;
+        search = search->next;
+    }
+    return search;
+}
 
 
 

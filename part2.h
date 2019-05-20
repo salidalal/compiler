@@ -66,12 +66,14 @@ typedef struct SymTable{
 
 
 Symbol * createSymbol(char *, char *, char *, variableType varType);
-SymTable * createSymTbl(Node *scopePtr);
+SymTable * createSymTbl(Node *);
 int addSymbol(SymTable *, Symbol *);
-void addTable(SymTable *newTable);
+void addTable(SymTable *);
 
+Symbol * findSyml(SymTable *, char *);
+SymTable * findTbl(Node *);
 
-
+void initScopes(Node *);
 
 
 
