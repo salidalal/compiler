@@ -85,9 +85,9 @@ args_list:			no_args{  $$ = $1; }
 				;
 				
 			
-yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  $$ = makeNode($3->value,temp,NULL);  }							
-				|	yes_args ';' args ':' arg_type {    Node*temp = makeNode("",NULL);fixRec($3,temp);  $3 = makeNode("",$5,temp,NULL); 
-													$$ = makeNode("REC ARGS",$3,$1); }
+yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  temp->value = $3->value; $$ = temp ; }							
+				|	yes_args ';' args ':' arg_type {    Node*temp = makeNode("",NULL);fixRec($3,temp);  temp->value =$5->value; $3 = makeNode($5->value,temp,NULL); 
+													$$ = makeNode("REC ARGS",temp,$1); }
 				;
 
 args:				id {$$=$1;}

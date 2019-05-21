@@ -34,6 +34,7 @@ void addToTree(Node* son, Node* parent)
 
 void printTree(Node* tree){
 	printNode(tree,1);
+    printer(tree);
 }
 
 
@@ -101,7 +102,7 @@ void fixRec(Node*temp,Node*n){
         return;
 
 
-    else if (strcmp(temp->value,"") == 0)
+    //else if (strcmp(temp->value,"") == 0)
 	
 
 	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
@@ -136,7 +137,17 @@ void printNode(Node *n,int tab)
         }
         printf(")\n\n"); 
 	}
-	/*
+	
+
+
+
+
+	
+}
+
+
+
+void printer(Node*n){
 
 	    int i;
 
@@ -150,11 +161,9 @@ void printNode(Node *n,int tab)
 	printf("\n");
     for (i = 0; i < n->size; i++) 
 	
-        printNode((n->sons)[i],0);
+        printer((n->sons)[i]);
 }
-	*/
 }
-
 
 
 

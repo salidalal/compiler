@@ -1539,14 +1539,14 @@ yyreduce:
 
   case 13:
 #line 88 "project.y" /* yacc.c:1646  */
-    {Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  (yyval) = makeNode((yyvsp[0])->value,temp,NULL);  }
+    {Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  temp->value = (yyvsp[0])->value; (yyval) = temp ; }
 #line 1544 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
 #line 89 "project.y" /* yacc.c:1646  */
-    {    Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  (yyvsp[-2]) = makeNode("",(yyvsp[0]),temp,NULL); 
-													(yyval) = makeNode("REC ARGS",(yyvsp[-2]),(yyvsp[-4])); }
+    {    Node*temp = makeNode("",NULL);fixRec((yyvsp[-2]),temp);  temp->value =(yyvsp[0])->value; (yyvsp[-2]) = makeNode((yyvsp[0])->value,temp,NULL); 
+													(yyval) = makeNode("REC ARGS",temp,(yyvsp[-4])); }
 #line 1551 "y.tab.c" /* yacc.c:1646  */
     break;
 

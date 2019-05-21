@@ -1,21 +1,7 @@
 
-func x3(x,y,t,a,e:real; r:int) return int{
-	while(true){
-		x=x+6;
-	}
-	
-	for(a=8;b<8;c=d+8){
-		e=f+8;
-		z=q+r+4;
-		
-	}
-	g=5;
-	proc sali(){
-		var x,y,t:int;
-		sali = x;
-		rosh =sfsfsf;
-	}
-	
+func x3(x,y,t,a,e:real; r:int ; sfdsfsd,dsfgdsg,erer,sdsL:real*; erty,dfsdfsdfsdf,sdfsdf:int*) return int{
+
+
 	return h;
 
 }
