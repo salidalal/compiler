@@ -1,14 +1,8 @@
-
-func x3(x,y,t,a,e:real; r:int ; sfdsfsd,dsfgdsg,erer,sdsL:real*; erty,dfsdfsdfsdf,sdfsdf:int*) return int{
-
-
-	return h;
-
-}
-
-
-
 proc Main(){
-
+	var s : int;
+    var x : char;
+    var s : int;
+	var sali : string [ 1 ];
+    var x : char;
+    s[x] = 'a';
 }
-

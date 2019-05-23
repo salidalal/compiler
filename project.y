@@ -149,7 +149,10 @@ statment:				call semico {$$=$1;}
 					|	for_statment  {$$=$1;}
 					|	while_statment {$$=$1;}
 					|	initign_statment  {$$=$1;}
-					|	var_decls {  $1->value="VAR"; $$=$1; }
+					|	var_decls {  $1->value="VAR";   $1->sons[0]->sons= $1->sons[1]->sons;
+														$1->sons[0]->size= $1->sons[1]->size;  
+														$1->sons[1]=NULL; $1->size=1; $$=$1; }
+
 					|	'{' statmentss '}'	{ Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
 					| 	/*epsilon*/ { $$ = makeNode("EMPTY",NULL);}
 					|	func {$$=$1;}
@@ -239,7 +242,7 @@ type:					TYPE_INT {$$=makeNode("INT",NULL);}
 					|	TYPE_BOOL {$$=makeNode("BOOL",NULL);}
 					|	TYPE_CHAR {$$=makeNode("CHAR",NULL);}
 					|	TYPE_REAL {$$=makeNode("REAL",NULL);}
-					|	TYPE_STRING {$$=makeNode("STRING",NULL);}
+					|	TYPE_STRING '['int']' {$$=makeNode( concat("STRING",concat("[",concat($3->value,"]"))) ,NULL);}
 					|	INT_PTR {$$=makeNode("INT*",NULL);}
 					|	CHAR_PTR {$$=makeNode("CHAR*",NULL);}
 					|	REAL_PTR {$$=makeNode("REAL*",NULL);}
