@@ -1,8 +1,10 @@
-
-proc Main(){
-var sali:int;
-sali=17;
-    var s : string[sali];
-    var x : char;
-    s[x] = 'a';
+func x1(a,b : int;f:real) return bool
+{
+	if (a==b)
+		return false;
+	else 
+		return true;
+	return true;
+	
 }
+

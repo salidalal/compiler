@@ -1,9 +1,17 @@
-
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <malloc.h>
+
+char * concat (const char* s1, const char* s2) {
+	char *result =(char*) malloc(strlen(s1)+strlen(s2)+1);
+	strcpy(result,s1);
+	strcat(result,s2);
+	return result;
+}
+
 
 
 //NODE
@@ -23,7 +31,7 @@ void printTree(Node* tree);
 void fixRec(Node*temp,Node*n);
 Node* fixFix(Node*);
 void changeP (Node *parent);
-int getChildIndex(Node *father, Node *child);
+int getSonsIndex(Node *, Node *);
 
 
 
@@ -33,8 +41,8 @@ int getChildIndex(Node *father, Node *child);
 
 typedef enum 
 { 
-    ARG, 
-    LOCAL 
+    VARIABLE,
+    FUNCTION  
 } variableType;
 
 typedef enum{
@@ -43,7 +51,8 @@ typedef enum{
     LOGICAL,
     COMPARE_NUM,
     COMPARE_EQ,
-    ASSIGN
+    ASSIGN,
+    UNARY
 } opType;
 
 
@@ -54,8 +63,8 @@ typedef struct Symbol{
     char *type;
     char *value;
     Symbol *next;
-    variableType varType;
-} Symbol;
+    variableType idType;
+    } Symbol;
 
 typedef struct SymTable SymTable;
 typedef struct SymTable{
@@ -70,10 +79,38 @@ SymTable * createSymTbl(Node *);
 int addSymbol(SymTable *, Symbol *);
 void addTable(SymTable *);
 
-Symbol * findSyml(SymTable *, char *);
+Symbol * findSym(SymTable *, char *, variableType);
 SymTable * findTbl(Node *);
 
 void initScopes(Node *);
+void printScopes();
+void printTable(SymTable *);
+void printSymbol(Symbol *);
+int tblSize(SymTable *);
+
+void errorSummary();
+void addError(const char *);
+void checks(Node *, int );
+Node * findScopeNode(Node *);
+int isString(char*);
+int isNumber(char *);
+int isScope(char *);
+void checkCall(Node *);
+void checkMain(Node *);
+void checkReturn(Node *);
+void checkCondition(Node *);
+char * stringInt(int );
+int stringSize(Node *);
+Node * getFuncOrProc(Node *);
+void initScopes(Node *);
+opType operatorType(char *);
+char * getVarType(Node *);
+char * getResultType(char *operator, char *left, char *right);
+char * evalExpression(Node *);
+
+
+
+
 
 
 

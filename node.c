@@ -73,7 +73,7 @@ Node *makeNode( char *value, ...)
 }
 
 
-int getChildIndex(Node *father, Node *child){
+int getSonsIndex(Node *father, Node *child){
     int i = 0;
     for(i=0; i<father->size; i++){
         if(father->sons[i] == child)

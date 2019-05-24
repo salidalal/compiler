@@ -5,11 +5,11 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include "node.c"
+#include "symTbl.c"
 
 
 
 Node * tree;
-int size =0;
 
 
 
@@ -18,7 +18,6 @@ void closeTree();
 int yylex(void);
 void yyerror(char*);
 extern char* yytext;
-char * concat (const char* s1, const char* s2);
 
 #define YYSTYPE struct Node *
 %} 
@@ -56,11 +55,9 @@ char * concat (const char* s1, const char* s2);
 program:			code { 	 closeTree();}
 				;
 
-code:	 			code_pros main {addToTree($2,tree);}
-				;
-
-code_pros:			code_pros proc	{addToTree($2,tree);}
-				|	code_pros func {addToTree($2,tree);}
+code:	 			code proc	{addToTree($2,tree);}
+				|	code func {addToTree($2,tree);}
+				|	code main {addToTree($2,tree);}
 				|	/*epsilon*/
 				;
 
@@ -136,7 +133,8 @@ return_va:			TYPE_INT {$$=makeNode("RET INT", NULL);}
 				|	REAL_PTR {$$=makeNode("RET REAL*", NULL);}
 				;
 
-the_ret:			RETURN expression ';' {$$=makeNode("RET",$2,NULL); }
+the_ret:			RETURN expression ';' {$$=makeNode("RETEXP",$2,NULL); }
+				|	{$$=NULL;}
 				;
 
 
@@ -157,6 +155,7 @@ statment:				call semico {$$=$1;}
 					| 	/*epsilon*/ { $$ = makeNode("EMPTY",NULL);}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
+					|	the_ret {$$=$1;}
 					;
 
 semico:					';'
@@ -249,10 +248,10 @@ type:					TYPE_INT {$$=makeNode("INT",NULL);}
 					;
 
 id:						ID {$$=makeNode((char*)$1,NULL) ; }
-					|	DEREF ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }
+					|	DEREF ID { $$=makeNode("DEREF",makeNode((char*)$2,NULL),NULL); }
 					;
 
-ref:					AMP ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }					
+ref:					AMP ID { $$=makeNode("AMP",makeNode((char*)$2,NULL),NULL); }					
 					;
 					
 
@@ -292,12 +291,7 @@ void yyerror(char* s){
 	printf("%s: at line %d found token [%s] \n",s,counter,yytext);
 }
 
-char * concat (const char* s1, const char* s2) {
-	char *result =(char*) malloc(strlen(s1)+strlen(s2)+1);
-	strcpy(result,s1);
-	strcat(result,s2);
-	return result;
-}
+
 
 
 
@@ -306,7 +300,10 @@ void closeTree(){
 	changeP(tree);
 
 	printTree(tree);
-	//initScopes(tree);
-	 //printScopes();
+	initScopes(tree);
+	printScopes();
+	checks(tree, 1 );
+	errorSummary();
+
 
 }
