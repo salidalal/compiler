@@ -100,7 +100,7 @@ void printSymbol(Symbol *sym){
     if(sym->idType == VARIABLE)
         printf("VARIABLE\n");
     else
-        printf("FUNCTION\n");   
+        printf("METHOD\n");   
 }
 
 
@@ -161,21 +161,26 @@ void checks(Node *node, int level){
     int i;
     for(i = 0; i < node->size; i++)
         checks(node->sons[i], level+1);
-    char* value = node->value;
 
+    char* value = node->value;
+    printf("%s\n",value);
     if(!strcmp(value, "CODE"))
         checkMain(node);
+    //else if(!strcmp(value,"Main"))
+      //  return;
     else if(!strcmp(value, "IF") || 
             !strcmp(value, "IF-ELSE") || 
-            !strcmp(node->value, "WHILE") || 
-            !strcmp(node->value, "FOR"))
-        checkCondition(node);
+            !strcmp(value, "WHILE") || 
+            !strcmp(value, "FOR"))
+        isBool(node);
     else if(!strcmp(value, "RETEXP"))
         checkReturn(node);
     else if(!strcmp(value, "CALL"))
         checkCall(node);
-    else if(!operatorType(node->value) != NONE)
+    if(!operatorType(value) != NONE){
         evalExpression(node);
+    }
+    printf("DONE\n");
 
 }
 
@@ -249,7 +254,7 @@ int isString(char * value){
 
 Symbol * searchSymbol(Node *scope, char *id, variableType idType){
     if(!scope)
-        return scope;
+        return NULL;
 
     else if (isScope(scope->value)){
         SymTable *tbl = findTbl(scope);
@@ -265,7 +270,7 @@ Symbol * searchSymbol(Node *scope, char *id, variableType idType){
 
 
 char * getVarType(Node *node){
-    Node *funcNode = NULL;
+    Node *MethodNode = NULL;
     Symbol *sym  = NULL;
     if(!strcmp(node->value,"true") || !strcmp(node->value, "false"))
         return "BOOL";
@@ -273,22 +278,22 @@ char * getVarType(Node *node){
         return "NULL";
 
     else if(!strcmp(node->value, "CALL")){     
-        funcNode = getFuncOrProc(node);
-        if(!funcNode){
+        MethodNode = getMethod(node);
+        if(!MethodNode){
             addError("Need to define function before callint it");
             return NULL;
         }
-        if(!strcmp(funcNode->value, "PROC")){
+        if(!strcmp(MethodNode->value, "PROC")){
             addError("Procedure dosen't return a value");
             return NULL;
         }
-        return funcNode->sons[2]->sons[0]->value;
+        return MethodNode->sons[2]->sons[0]->value;
         
     }
     if(!isNumber(node->value) && !isString(node->value)){     //If node is not a constant
         sym = searchSymbol(node, node->value, VARIABLE);
         if(!sym){
-            addError("Declare vars before use");
+            addError("Need to declare vars before use");
             return "";
         }
         
@@ -309,7 +314,7 @@ char * getVarType(Node *node){
 
 
 
-Node * getFuncOrProc(Node *callNode){
+Node * getMethod(Node *callNode){
     Node *search = callNode->parent, *prev = callNode;
     int index, i, found = 0;
 
@@ -333,7 +338,7 @@ Node * getFuncOrProc(Node *callNode){
 
 
 char * getResultType(char *operator, char *left, char *right){
-
+    printf("\nThe op is %s - %s - %s\n",operator,left, right);
     if(!right){ // unary
         if(!strcmp(operator, "!") && !strcmp(left, "BOOL"))
             return "BOOL";
@@ -364,7 +369,7 @@ char * getResultType(char *operator, char *left, char *right){
         if(opType == ASSIGN && !strcmp(left, right))
             return left;
     
-        else if (opType == LOGICAL && !strcmp(left, "BOOL") == 0 && !strcmp(right, "BOOL"))
+        else if (opType == LOGICAL && !strcmp(left, "BOOL")  && !strcmp(right, "BOOL"))
             return "BOOL";
 
         else if (opType == ARITHMETIC && !strcmp(left, "INT") && !strcmp(right, "INT"))
@@ -379,8 +384,8 @@ char * getResultType(char *operator, char *left, char *right){
 
         else if (
             (opType == COMPARE_NUM) &&
-                (!strcmp(left, "INT") || !strcmp(left,  "REAL") == 0) &&
-                (!strcmp(right,"INT") || !strcmp(right, "REAL") == 0)
+                (!strcmp(left, "INT") || !strcmp(left,  "REAL") ) &&
+                (!strcmp(right,"INT") || !strcmp(right, "REAL") )
             )
             return "BOOL";
 
@@ -413,7 +418,7 @@ char * getResultType(char *operator, char *left, char *right){
             !strcmp(right, "INT"))   
             return left;
     }
-    addError(concat("illegal operation with operator %s", operator));
+    addError(concat("illegal operation with operator ", operator));
     return " ";
     
 }
@@ -421,7 +426,7 @@ char * getResultType(char *operator, char *left, char *right){
 
 char * evalExpression(Node *node){
     char *left = NULL, *right = NULL;
-    if(node->size == 0 || !strcmp(node->value, "CALL"))          //If node is a leaf or function call, meaning, it should have a type
+    if(node->size == 0 || !strcmp(node->value, "CALL"))         
         return getVarType(node);
 
     if(node->size == 1){        
@@ -438,32 +443,33 @@ char * evalExpression(Node *node){
 }
 
 void checkReturn(Node *ret){
-  Node *funcNode = ret;
-  char * resultType = evalExpression(ret->sons[0]), *expectedResult = NULL;
+    Node *MethodNode = ret;
+    char * resultType = evalExpression(ret->sons[0]), *expectedResult = NULL;
   
-  while(!strcmp(funcNode->value, "FUNC"))
-    funcNode = funcNode->parent;
+    while(strcmp(MethodNode->value, "FUNC"))
+        MethodNode = MethodNode->parent;
 
-    expectedResult = funcNode->sons[2]->sons[0]->value;
+    expectedResult = MethodNode->sons[2]->sons[0]->value;
 
     if(!strcmp(resultType, "STRING"))
         addError("Strings cannot be returned from functions");
 
-    else if(strcmp(resultType, expectedResult) != 0){
+    else if(strcmp(resultType, expectedResult)){
         addError("Wrong return type");
     }
 
 }
 
-void checkCondition(Node *statementNode){
+void isBool(Node *statementNode){
     Node *condNode = NULL;
+    
     if(!strcmp(statementNode->value, "FOR"))
         condNode = statementNode->sons[1];
     else
         condNode = statementNode->sons[0];
 
-    if(!strcmp(evalExpression(condNode), "BOOL") )
-        addError("Condition expression should be boolean");
+    if(strcmp(evalExpression(condNode), "BOOL") )
+        addError("Condition expression should be of type boolean");
 
 }
 
@@ -484,24 +490,20 @@ char * stringInt(int num){
 
 
 void checkCall(Node *callNode){
-    Node * funcNode = getFuncOrProc(callNode);
-    Node * nodeArgs = NULL;
-    SymTable *tbl = NULL;
-    Symbol *sym = NULL;
+    Node * MethodNode = getMethod(callNode);
+    Node * nodeArgs = callNode->sons[0]; 
+    SymTable *tbl = findTbl(MethodNode);
+    Symbol *sym = tbl->head; 
     char *argType = NULL;
-    int i, countMatch = 0, expectedMatch;
+    int i, countMatch = 0, expectedNumOfArgs = tblSize(tbl);;
 
-    if(!funcNode){
+    if(!MethodNode){
         addError("Define Function Befor Call");
         return;
     }
 
-    nodeArgs = callNode->sons[0];   
-    tbl = findTbl(funcNode);
-    sym = tbl->head;  
-    expectedMatch = tblSize(tbl);
 
-    if(expectedMatch != nodeArgs->size){
+    if(expectedNumOfArgs != nodeArgs->size){
         addError("Wrong number of arguments to function");
         return;
     }
@@ -519,7 +521,7 @@ void checkCall(Node *callNode){
         }
     }
 
-    if(expectedMatch != countMatch)
+    if(expectedNumOfArgs != countMatch)
         addError("Wrong argument type passed to funtion");
     return;
 }
@@ -604,18 +606,19 @@ void initScopes(Node *node){
 
 void checkMain(Node *code){
 
-    int cou = 0, i;
+    int cou = 0;
     char* value = code->sons[code->size-1]->value;
-    for(i=0; i<code->size; i++){    
-        if(!strcmp(code->sons[i]->value, "MAIN"))
+
+    for(int i=0; i<code->size; i++){    
+        if(!strcmp(code->sons[i]->value, "Main"))
             cou++;
     }
     switch(cou){
 
-        case 0: addError("No main defined"); break;
+        case 0: addError("The Main proc is not defined"); break;
         
         case 1:
-            if(strcmp(value, "MAIN"))
+            if(strcmp(value, "Main"))
                 addError("Main function must be the last one");
                 break;
         default: addError("More than one Main function");
@@ -636,12 +639,12 @@ int isScope(char *value){
 
 void errorSummary(){
     int i;
-    if(numOfErrors == 0)
+    if(ErrorListSize == 0)
         printf("No errors\n");
     
     else
         printf("Errors:\n");
-    for(i=0; i<numOfErrors; i++)
+    for(i=0; i<ErrorListSize; i++)
         printf("#%d: %s\n", i+1, semErrors[i]);
     
 }
@@ -652,23 +655,23 @@ void addError(const char *err){
     char *ERROR = concat("",err);
     char **temp = NULL;
 
-    if(numOfErrors < 1){
+    if(ErrorListSize < 1){
         semErrors = (char**) malloc (sizeof(char*));
         semErrors[0] = ERROR;
-        numOfErrors = 1;
+        ErrorListSize = 1;
     }
     else{
-        for(i = 0; i < numOfErrors; i++){
+        for(i = 0; i < ErrorListSize; i++){
             if(!strcmp(ERROR, semErrors[i]))
                 return;
         }
-        temp = (char **) malloc (((numOfErrors) + 1) * (sizeof(char*)));
-        for(i = 0; i < numOfErrors; i++)
+        temp = (char **) malloc (((ErrorListSize) + 1) * (sizeof(char*)));
+        for(i = 0; i < ErrorListSize; i++)
             temp[i] = semErrors[i];
-        temp[numOfErrors] = ERROR;
+        temp[ErrorListSize] = ERROR;
         free(semErrors);
         semErrors = temp;
-        numOfErrors++;
+        ErrorListSize++;
     }
 }
 

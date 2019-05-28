@@ -58,6 +58,8 @@ Node * createNode(char *token, ...){
         newNode->child = NULL;
         newNode->numOfChilds = 0;
     }
+    newNode->code = NULL;
+    newNode->var = NULL;
     return newNode;
 }
 
@@ -167,6 +169,5 @@ int getChildIndex(Node *father, Node *child){
     }
     return -1;
 }
-
 
 #endif

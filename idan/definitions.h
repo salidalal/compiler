@@ -7,13 +7,17 @@
 #include <string.h>
 #include <malloc.h>
 
-
+/*Structs and enum definitions*/
 typedef struct Node Node;
 typedef struct Node{
     char *token;
     Node **child;
     Node* parent;
     int numOfChilds;
+
+    char *code;
+    char *var;
+
 } Node;
 
 typedef enum 
@@ -32,7 +36,6 @@ typedef enum{
     UNARY
 } opType;
 
-
 typedef struct Symbol Symbol;
 typedef struct Symbol{
     char *id;
@@ -50,92 +53,78 @@ typedef struct SymTable{
     SymTable *next;
 } SymTable;
 
-
-
-
-
-
-
-
+// YACC functions
 void yyerror(char *s);
 int yywrap();
 
-
 // Tree functions
+Node * createNode(char *token, ...);
+void addChild(Node *father, Node *newChild);
+void print(Node *root);
+void printTree(Node *node, int level);
+void printer(Node *node);
+void reverseChilds(Node *node);
+void makeParents(Node *node, int level);
+int getChildIndex(Node *father, Node *child);
 
-
-// Semantic checking functions
-void checkSemantics(Node *root, int level);
-void checkMain(Node *node);
-void checkProcFuncScope(Node *procNode);
-void checkVarScope(Node *varNode);
-void checkFunctionCall(Node *node);
-void checkArguments(Node *callNode, Node *funcNode);
-
-
-opType getOperatorType(char *token);
-char * evalExpression(Node *node);
-void checkAssign(Node *node);
-void checkReturn(Node *funcNode);
-void printScopes();
-
-// Error handling
-void newError(const char *error);
-void errorSummary();
-
-
-
-//Symbol table
+// Symbol table functions
 Symbol * newSymbol(char *id, char *type, char *value, identifierType idType);
-int addSymbol(SymTable *table, Symbol *symbol);
+int addSymbol(SymTable *table, Symbol *newSym);
 Symbol * findSymbol(SymTable *table, char *id, identifierType idType);
 SymTable * newSymTable(Node *scopePtr);
 void addTable(SymTable *newTable);
 SymTable * findTable(Node *scopePtr);
-void initScopes(Node *node);
-Node * findScopeNode(Node *node);
-Symbol * searchSymbol(Node *scope, char *id, identifierType idType);
-int isScope(Node *node);
-
-Node * getFuncOrProc(Node *callNode);
-
-char * getVarType(Node *node);
-
+void printSymbol(Symbol *symbol);
+void printTable(SymTable *table);
+void printScopes();
 int getTableSize(SymTable *table);
-int isString(Node *node);
 
+// Semantics functions
+void newError(const char *error);
+void errorSummary();
+void checkSemantics(Node *node, int level);
+void checkMain(Node *node);
+void checkFunctionCall(Node *callNode);
+void checkReturn(Node *returnNode);
 void checkCondition(Node *statementNode);
+char * evalExpression(Node *node);
+char * getVarType(Node *node);
+char * getResultType(char *operator, char *left, char *right);
+opType getOperatorType(char *token);
+Node * findScopeNode(Node *node);
+Node * getFuncOrProc(Node *callNode);
+int isScope(Node *node);
+int isNumber(Node *node);
+int isString(Node *node);
+int isConst(Node *node);
+Symbol * searchSymbol(Node *scope, char *id, identifierType idType);
+void initScopes(Node *node);
 
-Node * createNode(char *token, ...);
-void addChild(Node *father, Node *newChild);
-void printTree(Node *node, int level);
-void print(Node *root);
-void reverseChilds(Node *node);
-void makeParents(Node *node, int level);
-void printer(Node *node);
-int getChildIndex(Node *father, Node *child);
 
+// Three address code functions
+int freshVar();
+char * getNewVar();
+void generateAssign3AC(Node *assignNode);
+void generateExpression3AC(Node *node);
+void scanExpressions(Node *node);
+void printCode(Node *node);
+
+
+// Utilities functions
+char * appendStrings(char *str1, char *str2);
 int countWords(char *string);
 char ** parseString(char *var, int size);
-// char ** getArgumentTypes(SymTable *table);
-
-
-char * appendStrings(char *str1, char *str2);
-// Empty node handling
-void fixTree(Node *root);
-void checkEmpty(Node *node, int level);
-void fixEmptyNode(Node *emptyNode);
+char * intToString(int num);
+int getStringSize(Node *stringNode);
 
 // Global variables
 Node* pTree;
-
-int yydebug=1;
-int lastChild = 0;
 char **semErrors = NULL;
 int numOfErrors = 0;
-
+int yydebug=1;
 SymTable *scopes_head = NULL;
-Node *currentEmptyNode = NULL;
+
+static int fvar = 0;
 
 
 #endif

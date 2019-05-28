@@ -13,7 +13,6 @@ char * concat (const char* s1, const char* s2) {
 }
 
 
-
 //NODE
 typedef struct Node{
 	struct Node **sons;
@@ -98,11 +97,11 @@ int isScope(char *);
 void checkCall(Node *);
 void checkMain(Node *);
 void checkReturn(Node *);
-void checkCondition(Node *);
+void isBool(Node *);
 char * stringInt(int );
 int stringSize(Node *);
-Node * getFuncOrProc(Node *);
-void initScopes(Node *);
+Node * getMethod(Node *);
+void initScopes(Node *); 
 opType operatorType(char *);
 char * getVarType(Node *);
 char * getResultType(char *operator, char *left, char *right);
@@ -133,7 +132,7 @@ char * evalExpression(Node *);
 int yydebug=1;
 int lastChild = 0;
 char **semErrors = NULL;
-int numOfErrors = 0;
+int ErrorListSize = 0;
 
 SymTable *scopes_head = NULL;
 Node *currentEmptyNode = NULL;

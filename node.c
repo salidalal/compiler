@@ -122,7 +122,7 @@ void printNode(Node *n,int tab)
 {
 	
     for (int i = 1; i < tab; i++) {
-        printf("   ");
+        printf("    ");
     }
     if(n->size!=0)
         printf("(");    
@@ -133,9 +133,9 @@ void printNode(Node *n,int tab)
     }
     if(n->size!=0){ 
         for (int i = 1; i < tab; i++) {
-            printf("   ");
+            printf("    ");
         }
-        printf(")\n\n"); 
+        printf(")\n"); 
 	}
 	
 

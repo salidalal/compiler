@@ -7,18 +7,12 @@
 #include "node.c"
 #include "symTbl.c"
 
-
-
 Node * tree;
-
-
-
+int size =0;
 void closeTree();
-
 int yylex(void);
 void yyerror(char*);
 extern char* yytext;
-
 #define YYSTYPE struct Node *
 %} 
 /*
@@ -49,15 +43,20 @@ extern char* yytext;
 %left '{' '}' '(' ')' '['']'
 %left DEREF OR AND AMP
 %left MINUS PLUS MUL DIVIDE
+
+
 %start program
 %%
 
 program:			code { 	 closeTree();}
 				;
 
-code:	 			code proc	{addToTree($2,tree);}
-				|	code func {addToTree($2,tree);}
-				|	code main {addToTree($2,tree);}
+code:	 			code_pros {}
+				;
+
+code_pros:			code_pros proc	{addToTree($2,tree);}
+				|	code_pros func {addToTree($2,tree);}
+				|	code_pros main {addToTree($2,tree);}
 				|	/*epsilon*/
 				;
 
@@ -68,17 +67,17 @@ func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {$$=makeNode("FUNC",
 
 proc: 				PROC proc_id '(' get_arg ')' continue_proc {$$=makeNode("PROC",$2,$4,$6,NULL);};
 
-main:				PROC MAIN '(' ')' continue_proc { $$=makeNode("MAIN",$5,NULL); };
+main:				PROC MAIN '(' ')' continue_proc { $$=makeNode("Main",$5,NULL); };
 
 
 
 //=================PARAMETERS LIST=================
 
-get_arg:			args_list {  $1->value="ARGS"; $$=$1; }
+get_arg:			args_list {   $$=$1; }
 				;
 
-args_list:			no_args{  $$ = $1; }
-				|	yes_args{ if($1->size>1){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} $$ = $1; }
+args_list:			no_args{ $1->value = "ARGS NONE"; $$ = $1; }
+				|	yes_args{ if($1->size>1){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} $1->value="ARGS"; $$ = $1; }
 				;
 				
 			
@@ -92,8 +91,6 @@ args:				id {$$=$1;}
 				;
 no_args:			/*epsilon*/ {$$=makeNode("NONE",NULL);}
 				;
-
-
 
 call_args:			args_2 { Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp; }
 				|	no_args { $$ = $1; }
@@ -110,31 +107,32 @@ arg_type: 			type {$$=$1;}
 
 //==================proc and func body===============================
 
-continue_func:		return_va '{' body the_ret '}' {  $$ = makeNode("BODY", $1,$3,$4,NULL);}
+continue_func:		return_va '{' body  '}' {  $$ = makeNode("BLOCK", makeNode("RET",$1,NULL),$3,NULL);}
 				;
 
 proc_id: 			id {$$=$1;}
 				;
 
 
-continue_proc:		'{' body '}' { $2->value="BODY"; $$=$2;}
+continue_proc:		'{' body '}' { if(!$2){$2=makeNode("",NULL);} $2->value="BLOCK"; $$=$2;}
 				;
 
 body:				statmentss {Node*temp = makeNode("BODY",NULL);fixRec($1,temp); $$=temp;}
+				|	/**/ { $$ = NULL;}
 				;
 
 
-return_va:			TYPE_INT {$$=makeNode("RET INT", NULL);}
-				|	TYPE_CHAR {$$=makeNode("RET CHAR", NULL);}
-				|	TYPE_BOOL  {$$=makeNode("RET BOOL", NULL);}
-				|	TYPE_REAL  {$$=makeNode("RET REAL", NULL);}
-				|	INT_PTR  {$$=makeNode("RET INT*", NULL);}
-				|	CHAR_PTR  {$$=makeNode("RET CHAR*", NULL);}
-				|	REAL_PTR {$$=makeNode("RET REAL*", NULL);}
+return_va:			TYPE_INT {$$=makeNode("INT", NULL);}
+				|	TYPE_CHAR {$$=makeNode("CHAR", NULL);}
+				|	TYPE_BOOL  {$$=makeNode("BOOL", NULL);}
+				|	TYPE_REAL  {$$=makeNode("REAL", NULL);}
+				|	INT_PTR  {$$=makeNode("INT*", NULL);}
+				|	CHAR_PTR  {$$=makeNode("CHAR*", NULL);}
+				|	REAL_PTR {$$=makeNode("REAL*", NULL);}
+				| 	TYPE_STRING '['INT']' { $$= makeNode(concat("STRING[",concat((char*)$3,"]")) ,NULL);}
 				;
 
-the_ret:			RETURN expression ';' {$$=makeNode("RETEXP",$2,NULL); }
-				|	{$$=NULL;}
+the_ret:			RETURN expression ';' {$$=makeNode("RET",$2,NULL); }
 				;
 
 
@@ -152,10 +150,10 @@ statment:				call semico {$$=$1;}
 														$1->sons[1]=NULL; $1->size=1; $$=$1; }
 
 					|	'{' statmentss '}'	{ Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
-					| 	/*epsilon*/ { $$ = makeNode("EMPTY",NULL);}
+//					| 	/*epsilon*/ { $$ = makeNode("EMPTY",NULL);}
+					|	the_ret {$$=$1;}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
-					|	the_ret {$$=$1;}
 					;
 
 semico:					';'
@@ -172,7 +170,7 @@ statmentss:				statmentss statment {$$=makeNode("REC ARGS",$2,$1, NULL);}
 
 
 
-var_decls:				VAR ids ':' type ';' {Node*temp = makeNode("",NULL);fixRec($2,temp); $$=makeNode("",$4,temp,NULL);}
+var_decls:				VAR ids ':' type ';' {Node*temp = makeNode("LALA1",NULL);fixRec($2,temp); $$=makeNode("LALA2",$4,temp,NULL);}
 					;
 
 ids: 					ids ',' id {$$=makeNode("REC ARGS",$3,$1,NULL);}
@@ -205,8 +203,7 @@ init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
 					;
 
 
-block: 					'{' '}' {$$=makeNode("EMPTY",NULL);}	
-					|	statment {$$=$1;}
+block: 					statment {$$=$1;}
 					;
 
 	
@@ -248,12 +245,13 @@ type:					TYPE_INT {$$=makeNode("INT",NULL);}
 					;
 
 id:						ID {$$=makeNode((char*)$1,NULL) ; }
-					|	DEREF ID { $$=makeNode("DEREF",makeNode((char*)$2,NULL),NULL); }
+					|	DEREF ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }
 					;
 
-ref:					AMP ID { $$=makeNode("AMP",makeNode((char*)$2,NULL),NULL); }					
+ref:					AMP ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }					
 					;
-					
+				
+
 
 call:					id '(' call_args ')'  { $$ = makeNode("CALL",$1,makeNode("ARGS",$3,NULL),NULL); }
 					;
@@ -302,8 +300,8 @@ void closeTree(){
 	printTree(tree);
 	initScopes(tree);
 	printScopes();
-	checks(tree, 1 );
-	errorSummary();
 
+	checks(tree, 1);
+    errorSummary();
 
 }

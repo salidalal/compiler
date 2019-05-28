@@ -14,9 +14,10 @@
 #include "definitions.h"
 #include "lex.yy.c"
 
-#include "Semantics.c"
-#include "tree.c"
+#include "Tree.c"
 #include "SymTable.c"
+#include "Semantics.c"
+#include "3AC.c"
 
 %}
 %union{
@@ -52,11 +53,13 @@ program:
         reverseChilds(pTree);
         makeParents(pTree, 1);
         initScopes(pTree);
-        printScopes();
+         printScopes();
         checkSemantics(pTree, 1);
         errorSummary();
         // if(numOfErrors == 0)
             print(pTree);
+        //scanExpressions(pTree);
+        //printCode(pTree);
     }
     ;
 
@@ -263,6 +266,7 @@ identifier:
 
 int main(){
   pTree = createNode("CODE", NULL);
+
   yyparse();
   return 0;
 }

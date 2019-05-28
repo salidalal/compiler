@@ -1,10 +1,7 @@
-func x1(a,b : int;f:real) return bool
+proc Main()
 {
-	if (a==b)
-		return false;
-	else 
-		return true;
-	return true;
-	
+    var a, b,d,f,r,q,w,e,s,d : int;
+    a = a + 3;
+    while(true)
+        a = a + 1;
 }
-
