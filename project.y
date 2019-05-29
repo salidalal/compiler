@@ -238,7 +238,7 @@ type:					TYPE_INT {$$=makeNode("INT",NULL);}
 					|	TYPE_BOOL {$$=makeNode("BOOL",NULL);}
 					|	TYPE_CHAR {$$=makeNode("CHAR",NULL);}
 					|	TYPE_REAL {$$=makeNode("REAL",NULL);}
-					|	TYPE_STRING '['INT']' {$$=makeNode( concat("STRING",concat("[",concat($3,"]"))) ,NULL);}
+					|	TYPE_STRING '['INT']' {$$=makeNode( concat("STRING",concat("[",concat((char*)$3,"]"))) ,NULL);}
 					|	INT_PTR {$$=makeNode("INT*",NULL);}
 					|	CHAR_PTR {$$=makeNode("CHAR*",NULL);}
 					|	REAL_PTR {$$=makeNode("REAL*",NULL);}
@@ -297,8 +297,11 @@ void yyerror(char* s){
 void closeTree(){
 	changeP(tree);
 
+	printf("\nCode tree:\n");
 	printTree(tree);
 	initScopes(tree);
+
+	printf("\nScopes:\n");
 	printScopes();
 	checks(tree, 1);
     errorSummary();

@@ -1949,7 +1949,7 @@ yyreduce:
 
   case 94:
 #line 241 "project.y" /* yacc.c:1646  */
-    {(yyval)=makeNode( concat("STRING",concat("[",concat((yyvsp[-1]),"]"))) ,NULL);}
+    {(yyval)=makeNode( concat("STRING",concat("[",concat((char*)(yyvsp[-1]),"]"))) ,NULL);}
 #line 1954 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2307,8 +2307,11 @@ void yyerror(char* s){
 void closeTree(){
 	changeP(tree);
 
+	printf("\nCode tree:\n");
 	printTree(tree);
 	initScopes(tree);
+
+	printf("\nScopes:\n");
 	printScopes();
 	checks(tree, 1);
     errorSummary();
