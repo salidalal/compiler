@@ -77,7 +77,7 @@ get_arg:			args_list {   $$=$1; }
 				;
 
 args_list:			no_args{ $1->value = "ARGS NONE"; $$ = $1; }
-				|	yes_args{ if($1->size>1){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} $1->value="ARGS"; $$ = $1; }
+				|	yes_args{ if(!strcmp("REC ARGS",$1->value)){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} else{$1=makeNode("",$1);} $1->value="ARGS"; $$ = $1; }
 				;
 				
 			
@@ -129,10 +129,10 @@ return_va:			TYPE_INT {$$=makeNode("INT", NULL);}
 				|	INT_PTR  {$$=makeNode("INT*", NULL);}
 				|	CHAR_PTR  {$$=makeNode("CHAR*", NULL);}
 				|	REAL_PTR {$$=makeNode("REAL*", NULL);}
-				| 	TYPE_STRING '['INT']' { $$= makeNode(concat("STRING[",concat((char*)$3,"]")) ,NULL);}
+				| 	TYPE_STRING'['INT']' { $$= makeNode(concat("STRING[",concat((char*)$3,"]")) ,NULL);}
 				;
 
-the_ret:			RETURN expression ';' {$$=makeNode("RET",$2,NULL); }
+the_ret:			RETURN expression ';' {$$=makeNode("RETURN",$2,NULL); }
 				;
 
 
@@ -268,7 +268,7 @@ string:					STRING {$$=makeNode(yytext,NULL);};
 char:					CHAR {$$=makeNode(yytext,NULL);};
 real:					REAL {$$=makeNode(yytext,NULL);};
 int:					INT {$$=makeNode(yytext,NULL); };
-null:					TYPE_NULL  {$$=makeNode(yytext,NULL); };
+null:					TYPE_NULL  {$$=makeNode("NULL",NULL); };
 %%	
 
 #include "lex.yy.c"

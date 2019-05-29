@@ -67,7 +67,7 @@ typedef struct Symbol{
 
 typedef struct SymTable SymTable;
 typedef struct SymTable{
-    Node * scopePtr;
+    Node * scopeNode;
     Symbol *head;
     SymTable *next;
 } SymTable;

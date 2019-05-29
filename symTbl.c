@@ -22,10 +22,10 @@ Symbol * createSymbol(char *id, char *type, char *value, variableType varType){
 }
 
 
-SymTable * createSymTbl(Node *scopePtr){
+SymTable * createSymTbl(Node *scopeNode){
     SymTable *tbl = (SymTable*) malloc (sizeof(SymTable));
     tbl->head = NULL;
-    tbl->scopePtr = scopePtr;
+    tbl->scopeNode = scopeNode;
     tbl->next = NULL;
     return tbl;
 }
@@ -38,7 +38,7 @@ int addSymbol(SymTable *tbl, Symbol *sym){
     if(findSym(tbl, sym->id,sym->idType))
         return 0;
 
-    if(!(tbl->head)){
+    else if(!(tbl->head)){
         tbl->head = sym;
         return 1;
     }
@@ -78,10 +78,10 @@ Symbol * findSym(SymTable *tbl, char *id, variableType type){
     return search;
 }
 
-SymTable * findTbl(Node *scopePtr){
+SymTable * findTbl(Node *scopeNode){
     SymTable *search = scopes_head;
     while(search){
-        if(search->scopePtr == scopePtr)
+        if(search->scopeNode == scopeNode)
             return search;
         search = search->next;
     }
@@ -107,7 +107,7 @@ void printSymbol(Symbol *sym){
 
 void printTable(SymTable *tbl){
     Symbol *sym = tbl->head;
-    printf("scope: %s\n", tbl->scopePtr->value);
+    printf("scope: %s\n", tbl->scopeNode->value);
     while(sym){
         printSymbol(sym);
         sym = sym->next;
@@ -163,7 +163,7 @@ void checks(Node *node, int level){
         checks(node->sons[i], level+1);
 
     char* value = node->value;
-    printf("%s\n",value);
+    
     if(!strcmp(value, "CODE"))
         checkMain(node);
     //else if(!strcmp(value,"Main"))
@@ -173,14 +173,14 @@ void checks(Node *node, int level){
             !strcmp(value, "WHILE") || 
             !strcmp(value, "FOR"))
         isBool(node);
-    else if(!strcmp(value, "RETEXP"))
+    else if(!strcmp(value, "RETURN"))
         checkReturn(node);
     else if(!strcmp(value, "CALL"))
         checkCall(node);
-    if(!operatorType(value) != NONE){
+    if(operatorType(value) != NONE){
         evalExpression(node);
     }
-    printf("DONE\n");
+    //printf("DONE\n");
 
 }
 
@@ -272,15 +272,15 @@ Symbol * searchSymbol(Node *scope, char *id, variableType idType){
 char * getVarType(Node *node){
     Node *MethodNode = NULL;
     Symbol *sym  = NULL;
-    if(!strcmp(node->value,"true") || !strcmp(node->value, "false"))
+    if(!strcmp(node->value,"TRUE") || !strcmp(node->value, "FALSE"))
         return "BOOL";
-    else if(!strcmp(node->value, "null"))
+    else if(!strcmp(node->value, "NULL"))
         return "NULL";
 
     else if(!strcmp(node->value, "CALL")){     
         MethodNode = getMethod(node);
         if(!MethodNode){
-            addError("Need to define function before callint it");
+            addError("Need to define method before calling it");
             return NULL;
         }
         if(!strcmp(MethodNode->value, "PROC")){
@@ -321,8 +321,8 @@ Node * getMethod(Node *callNode){
     while(search){
         index = getSonsIndex(search, prev);
         for(i = index - 1; i >= 0; i--){
-            if(!strcmp(search->sons[i]->value, "PROC") || !strcmp(search->sons[i]->value, "FUNC") == 0){  
-                if(strcmp(callNode->sons[0]->value, search->sons[i]->sons[0]->value))
+            if(!strcmp(search->sons[i]->value, "PROC") || !strcmp(search->sons[i]->value, "FUNC")){  
+                if(!strcmp(callNode->sons[0]->value, search->sons[i]->sons[0]->value))
                     return search->sons[i];     
             }
             else if(!strcmp(search->value, "PROC") || !strcmp(search->value, "FUNC")){      
@@ -338,7 +338,7 @@ Node * getMethod(Node *callNode){
 
 
 char * getResultType(char *operator, char *left, char *right){
-    printf("\nThe op is %s - %s - %s\n",operator,left, right);
+    //printf("\nThe op is %s - %s - %s\n",operator,left, right);
     if(!right){ // unary
         if(!strcmp(operator, "!") && !strcmp(left, "BOOL"))
             return "BOOL";
@@ -369,10 +369,10 @@ char * getResultType(char *operator, char *left, char *right){
         if(opType == ASSIGN && !strcmp(left, right))
             return left;
     
-        else if (opType == LOGICAL && !strcmp(left, "BOOL")  && !strcmp(right, "BOOL"))
+        else if (opType == LOGICAL && !strcmp(left, "BOOL")  && !strcmp(right,left))
             return "BOOL";
 
-        else if (opType == ARITHMETIC && !strcmp(left, "INT") && !strcmp(right, "INT"))
+        else if (opType == ARITHMETIC && !strcmp(left, "INT") && !strcmp(right, left))
             return "INT";
 
         else if (
@@ -443,18 +443,20 @@ char * evalExpression(Node *node){
 }
 
 void checkReturn(Node *ret){
+
     Node *MethodNode = ret;
     char * resultType = evalExpression(ret->sons[0]), *expectedResult = NULL;
   
     while(strcmp(MethodNode->value, "FUNC"))
         MethodNode = MethodNode->parent;
 
+    
     expectedResult = MethodNode->sons[2]->sons[0]->value;
-
     if(!strcmp(resultType, "STRING"))
         addError("Strings cannot be returned from functions");
 
     else if(strcmp(resultType, expectedResult)){
+//        printf("LOOK HERE - expec =%s - res = %s\n",resultType, expectedResult);
         addError("Wrong return type");
     }
 
@@ -482,7 +484,7 @@ char * stringInt(int num){
     for(int i=0; buffer[i]; i++)
         size++;
     number = (char*)malloc (sizeof(char)*(size+1));
-    strcmp(number,buffer);
+    strcat(number,buffer);
     return number;
     
 }
@@ -551,29 +553,30 @@ int stringSize(Node *stringNode){
 
 void initScopes(Node *node){
     int i, j, k, strSize;
-    Node *scopePtr = NULL;
+    Node *scopeNode = NULL;
     Symbol *newSym = NULL;
     SymTable *table = NULL, *newScope = NULL;
+
     char *strId = node->value;
     
     if(isScope(node->value)){
         newScope = createSymTbl(node);
         addTable(newScope);
-        scopePtr = findScopeNode(node);
-        if(scopePtr){      
+        scopeNode = findScopeNode(node);
+        if(scopeNode){      
             if(!strcmp(strId, "PROC") || !strcmp(strId, "FUNC")){    
             newSym = createSymbol(node->sons[0]->value, strId, NULL, FUNCTION);
-            table = findTbl(scopePtr);
+            table = findTbl(scopeNode);
             if(!addSymbol(table, newSym))
-                addError("Conflicting Function definition");
+                addError("Method definition is already exsist");
             }       
         }
     }
     strId=NULL;
 
     if(!strcmp(node->value, "ARGS") || !strcmp(node->value, "VAR")){
-        scopePtr = findScopeNode(node);
-        table = findTbl(scopePtr);
+        scopeNode = findScopeNode(node);
+        table = findTbl(scopeNode);
         for(i = 0; i < node->size; i++){     //for each type
             for(j = 0; j < node->sons[i]->size; j++){   //for each var/arg
                 if(strcmp(node->sons[i]->value, "STRING") >= 0){   //If variable type is string, creating symbol for each cell
@@ -640,12 +643,12 @@ int isScope(char *value){
 void errorSummary(){
     int i;
     if(ErrorListSize == 0)
-        printf("No errors\n");
+        printf("\nCompiled succesfuly\n");
     
     else
-        printf("Errors:\n");
+        printf("Program was not compiled because:\n");
     for(i=0; i<ErrorListSize; i++)
-        printf("#%d: %s\n", i+1, semErrors[i]);
+        printf("# %d - %s\n", i+1, semErrors[i]);
     
 }
 

@@ -1525,7 +1525,7 @@ yyreduce:
 
   case 13:
 #line 80 "project.y" /* yacc.c:1646  */
-    { if((yyvsp[0])->size>1){Node*temp = makeNode("",NULL); fixRec((yyvsp[0]),temp);  (yyvsp[0])=temp;} (yyvsp[0])->value="ARGS"; (yyval) = (yyvsp[0]); }
+    {  if(!strcmp("REC ARGS",(yyvsp[0])->value)){Node*temp = makeNode("",NULL); fixRec((yyvsp[0]),temp);  (yyvsp[0])=temp;} else{(yyvsp[0])=makeNode("",(yyvsp[0]));} (yyvsp[0])->value="ARGS"; (yyval) = (yyvsp[0]); }
 #line 1530 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1670,7 +1670,7 @@ yyreduce:
 
   case 37:
 #line 135 "project.y" /* yacc.c:1646  */
-    {(yyval)=makeNode("RET",(yyvsp[-1]),NULL); }
+    {(yyval)=makeNode("RETURN",(yyvsp[-1]),NULL); }
 #line 1675 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2045,7 +2045,7 @@ yyreduce:
 
   case 110:
 #line 271 "project.y" /* yacc.c:1646  */
-    {(yyval)=makeNode(yytext,NULL); }
+    {(yyval)=makeNode("NULL",NULL); }
 #line 2050 "y.tab.c" /* yacc.c:1646  */
     break;
 

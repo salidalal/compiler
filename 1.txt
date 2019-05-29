@@ -1,6 +1,19 @@
+func sali (a,b,c : int ; r,t,e:char) return int{
+	a=6;
+b=7;
+c=9;
+r='c';
+var sali:string[15];
+
+
+return a;
+}
+
+
+
 proc Main()
 {
-    var a, b : int;
-    while(true)
-        a = a + 1;
+    var a, b,d: int;
+    a = a + 3;
+
 }
