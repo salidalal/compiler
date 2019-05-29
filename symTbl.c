@@ -170,7 +170,7 @@ void checks(Node *node, int level){
     //else if(!strcmp(value,"Main"))
       //  return;
     else if(!strcmp(value, "IF") || 
-            !strcmp(value, "IF-ELSE") || 
+            !strcmp(value, "IFELSE") || 
             !strcmp(value, "WHILE") || 
             !strcmp(value, "FOR"))
         isBool(node);

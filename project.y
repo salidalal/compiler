@@ -182,7 +182,7 @@ initign_statment:		lhs EQ expression semico {$$=makeNode("=",$1,$3,NULL); }
 
 					
 
-if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IF-ELSE",$3,$5,$6,NULL);}
+if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IFELSE",$3,$5,$6,NULL);}
 																		else {$$ = makeNode("IF",$3,$5,NULL); }   }
 					;
 

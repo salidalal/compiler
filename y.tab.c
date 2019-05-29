@@ -1774,7 +1774,7 @@ yyreduce:
 
   case 55:
 #line 185 "project.y" /* yacc.c:1646  */
-    { if((yyvsp[0])){(yyval) = makeNode("IF-ELSE",(yyvsp[-3]),(yyvsp[-1]),(yyvsp[0]),NULL);}
+    { if((yyvsp[0])){(yyval) = makeNode("IFELSE",(yyvsp[-3]),(yyvsp[-1]),(yyvsp[0]),NULL);}
 																		else {(yyval) = makeNode("IF",(yyvsp[-3]),(yyvsp[-1]),NULL); }   }
 #line 1780 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2310,8 +2310,6 @@ void closeTree(){
 	printTree(tree);
 	initScopes(tree);
 	printScopes();
-	printf("\n\n\nDONE\n\n\n");
-
 	checks(tree, 1);
     errorSummary();
 
