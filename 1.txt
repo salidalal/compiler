@@ -1,19 +1,91 @@
-func sali (a,b,c : int ; r,t,e:char) return int{
-	a=6;
-b=7;
-c=9;
-r='c';
-var sali:string[15];
-
-
-return a;
+func x1(a,b : int;f:real) return int
+{
+	if (a==b)
+		return 11;
+	else 
+		return 12;
+	return 1;
 }
 
+func eee(a,b : int;f:real) return int
+{
+	if (a==b)
+		return 11;
+	else 
+		return 12;
+	return 1;
+}
+
+func eeze(a,b : int;f:real) return int
+{
+	if (a==b)
+		return 11;
+	else 
+		return 12;
+	return 1;
+}func eaee(a,b : int;f:real) return int
+{
+	if (a==b)
+		return 11;
+	else 
+		return 12;
+	return 1;
+}func eewe(a,b : int;f:real) return int
+{
+	if (a==b)
+		return 11;
+	else 
+		return 12;
+	return 1;
+}
+
+
+
+
+func x3(x,y,t,a,e:real; r:int) return int{
+	while(true){
+		x= x + 6;
+	}
+	
+	for(r=8;r<8;r=r+8){
+		e=1.2+8;
+		
+		
+	}
+	r=5;
+	
+	return r;
+
+}
+
+
+
+proc main(){
+    var x,y,w,q:int;
+if(x>1){
+	x=6;
+}
+else{
+	y=9;
+	w=10;
+	q=1;
+}}
 
 
 proc Main()
 {
-    var a, b,d: int;
-    a = a + 3;
-
+	
+	var a,b:int;
+	var c:int;
+	var x:real;
+    c=eee(c,a,x);
+	/%x=b;%/
+	a = 0;
+	while(a < 10)
+        {
+		b =8;
+		a = a + b;
+		a = a;
+	}
 }
+

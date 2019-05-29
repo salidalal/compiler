@@ -640,7 +640,7 @@ static const yytype_int16 yypgoto[] =
      117,    45,  -117,  -117,    49,  -117,   149,   127,     6,  -117,
     -117,   -41,  -116,   137,  -117,  -117,  -117,  -117,  -117,  -117,
     -117,  -117,    -8,    22,     0,   -70,  -117,    57,    -5,  -117,
-     -26,  -117,  -117,   100,  -117,  -117,    80,  -117
+     -26,  -117,  -117,   100,  -117,  -117,  -117,  -117
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -667,7 +667,7 @@ static const yytype_uint8 yytable[] =
      140,    72,   140,   142,   143,   144,   143,   144,   124,    73,
       99,   119,   120,   197,    56,   101,   103,    12,    42,   146,
      105,   130,   104,   127,    35,   129,    36,    37,    38,     6,
-      39,   108,    40,   128,   155,    55,    80,   154,   158,   145,
+      39,   108,    40,   128,   155,    55,   153,   154,   158,   145,
       41,   180,   160,   147,   151,    59,    60,    61,    62,    63,
       64,    65,    66,   164,   165,   185,   186,   186,   181,    12,
       42,   162,   182,   193,   183,   191,   194,   123,   195,    56,
@@ -676,7 +676,7 @@ static const yytype_uint8 yytable[] =
       55,    55,    55,    55,   198,    15,   152,    57,    76,   189,
      190,   184,    77,    78,    79,    11,    80,    81,    82,    56,
      109,   110,   111,   112,   113,   114,   115,   116,    83,   100,
-     188,   192,   161,    84,    12,   132,   131,    85,   153,   199,
+     188,   192,   161,    84,    12,   132,   131,    85,     0,   199,
       55,    86,   124,     0,     0,   133,   134,     0,   135,   136,
      137,   138,   139,   140,   105,   141,   142,   143,   144,     0,
        0,     0,     0,     0,   133,   134,     0,   135,   136,   137,
@@ -713,7 +713,7 @@ static const yytype_int16 yycheck[] =
      155,   156,   157,   158,   195,     6,   107,    30,    20,   159,
      160,   155,    24,    25,    26,    27,    28,    29,    30,   195,
        3,     4,     5,     6,     7,     8,     9,    10,    40,    42,
-     158,   181,   125,    45,    46,    21,    86,    49,   108,   197,
+     158,   181,   125,    45,    46,    21,    86,    49,    -1,   197,
      195,    53,   197,    -1,    -1,    31,    32,    -1,    34,    35,
       36,    37,    38,    39,    21,    41,    42,    43,    44,    -1,
       -1,    -1,    -1,    -1,    31,    32,    -1,    34,    35,    36,
@@ -749,7 +749,7 @@ static const yytype_uint8 yystos[] =
       88,    85,    86,    89,    92,    22,    23,    88,    27,    88,
       92,    97,    21,    31,    32,    34,    35,    36,    37,    38,
       39,    41,    42,    43,    44,    88,    48,    88,    65,    66,
-      67,    88,    68,   100,    51,    47,    50,    50,    50,    76,
+      67,    88,    68,    28,    51,    47,    50,    50,    50,    76,
       33,    91,    92,    50,    53,    53,    88,    88,    88,    88,
       88,    88,    88,    88,    88,    88,    88,    88,    52,    76,
       50,    23,    52,    28,    72,    75,    75,    87,    87,    88,
@@ -1525,7 +1525,7 @@ yyreduce:
 
   case 13:
 #line 80 "project.y" /* yacc.c:1646  */
-    {  if(!strcmp("REC ARGS",(yyvsp[0])->value)){Node*temp = makeNode("",NULL); fixRec((yyvsp[0]),temp);  (yyvsp[0])=temp;} else{(yyvsp[0])=makeNode("",(yyvsp[0]));} (yyvsp[0])->value="ARGS"; (yyval) = (yyvsp[0]); }
+    { if(!strcmp("REC ARGS",(yyvsp[0])->value)){Node*temp = makeNode("",NULL); fixRec((yyvsp[0]),temp);  (yyvsp[0])=temp;} else{(yyvsp[0])=makeNode("",(yyvsp[0]));} (yyvsp[0])->value="ARGS"; (yyval) = (yyvsp[0]); }
 #line 1530 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1774,14 +1774,14 @@ yyreduce:
 
   case 55:
 #line 185 "project.y" /* yacc.c:1646  */
-    { if((yyvsp[0])){(yyval) = makeNode("IF-ELSE",makeNode("IF",(yyvsp[-3]),(yyvsp[-1]),NULL),(yyvsp[0]),NULL);}
+    { if((yyvsp[0])){(yyval) = makeNode("IF-ELSE",(yyvsp[-3]),(yyvsp[-1]),(yyvsp[0]),NULL);}
 																		else {(yyval) = makeNode("IF",(yyvsp[-3]),(yyvsp[-1]),NULL); }   }
 #line 1780 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
 #line 189 "project.y" /* yacc.c:1646  */
-    { (yyval)= makeNode("ELSE",(yyvsp[0]),NULL); }
+    { (yyval)= (yyvsp[0]); }
 #line 1786 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1949,7 +1949,7 @@ yyreduce:
 
   case 94:
 #line 241 "project.y" /* yacc.c:1646  */
-    {(yyval)=makeNode( concat("STRING",concat("[",concat((yyvsp[-1])->value,"]"))) ,NULL);}
+    {(yyval)=makeNode( concat("STRING",concat("[",concat((yyvsp[-1]),"]"))) ,NULL);}
 #line 1954 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1991,7 +1991,7 @@ yyreduce:
 
   case 101:
 #line 256 "project.y" /* yacc.c:1646  */
-    { (yyval) = makeNode("CALL",(yyvsp[-3]),makeNode("ARGS",(yyvsp[-1]),NULL),NULL); }
+    { (yyvsp[-3])->sons = (yyvsp[-1])->sons; (yyvsp[-3])->size = (yyvsp[-1])->size; (yyval) = makeNode("CALL",(yyvsp[-3]),NULL); }
 #line 1996 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2310,6 +2310,7 @@ void closeTree(){
 	printTree(tree);
 	initScopes(tree);
 	printScopes();
+	printf("\n\n\nDONE\n\n\n");
 
 	checks(tree, 1);
     errorSummary();

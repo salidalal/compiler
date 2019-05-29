@@ -182,11 +182,11 @@ initign_statment:		lhs EQ expression semico {$$=makeNode("=",$1,$3,NULL); }
 
 					
 
-if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IF-ELSE",makeNode("IF",$3,$5,NULL),$6,NULL);}
+if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IF-ELSE",$3,$5,$6,NULL);}
 																		else {$$ = makeNode("IF",$3,$5,NULL); }   }
 					;
 
-else_statment:			ELSE statment { $$= makeNode("ELSE",$2,NULL); }
+else_statment:			ELSE statment { $$= $2; }
 					|	/*epsilon*/{$$=NULL;};
 					;
 
@@ -238,7 +238,7 @@ type:					TYPE_INT {$$=makeNode("INT",NULL);}
 					|	TYPE_BOOL {$$=makeNode("BOOL",NULL);}
 					|	TYPE_CHAR {$$=makeNode("CHAR",NULL);}
 					|	TYPE_REAL {$$=makeNode("REAL",NULL);}
-					|	TYPE_STRING '['int']' {$$=makeNode( concat("STRING",concat("[",concat($3->value,"]"))) ,NULL);}
+					|	TYPE_STRING '['INT']' {$$=makeNode( concat("STRING",concat("[",concat($3,"]"))) ,NULL);}
 					|	INT_PTR {$$=makeNode("INT*",NULL);}
 					|	CHAR_PTR {$$=makeNode("CHAR*",NULL);}
 					|	REAL_PTR {$$=makeNode("REAL*",NULL);}
@@ -253,7 +253,7 @@ ref:					AMP ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }
 				
 
 
-call:					id '(' call_args ')'  { $$ = makeNode("CALL",$1,makeNode("ARGS",$3,NULL),NULL); }
+call:					id '(' call_args ')'  { $1->sons = $3->sons; $1->size = $3->size; $$ = makeNode("CALL",$1,NULL); }
 					;
 
 len:					'|' id '|' { $$=makeNode("LEN",$2,NULL); }
@@ -300,7 +300,6 @@ void closeTree(){
 	printTree(tree);
 	initScopes(tree);
 	printScopes();
-
 	checks(tree, 1);
     errorSummary();
 

@@ -159,6 +159,7 @@ Node * findScopeNode(Node *node){
 
 void checks(Node *node, int level){
     int i;
+    //printf("start %s\n",node->value);
     for(i = 0; i < node->size; i++)
         checks(node->sons[i], level+1);
 
@@ -180,6 +181,7 @@ void checks(Node *node, int level){
     if(operatorType(value) != NONE){
         evalExpression(node);
     }
+    //printf("done %s\n",node->value);
     //printf("DONE\n");
 
 }
@@ -410,7 +412,8 @@ char * getResultType(char *operator, char *left, char *right){
             !strcmp(operator, "=") &&
             (!strcmp(left, "CHAR*") || !strcmp(left, "INT*") || !strcmp(left, "REAL*") ) &&
              !strcmp(right, "NULL") 
-        )   return left;
+        )  { return left; 
+             }
 
         else if(
             (strcmp(operator, "+") || strcmp(operator, "-")) &&
@@ -419,6 +422,7 @@ char * getResultType(char *operator, char *left, char *right){
             return left;
     }
     addError(concat("illegal operation with operator ", operator));
+    //printf("%s,%s,%s\n",operator,left,right);
     return " ";
     
 }
@@ -602,6 +606,7 @@ void initScopes(Node *node){
     }
     for(i = 0; i < node->size; i++)
         initScopes(node->sons[i]);
+
 }
 
 

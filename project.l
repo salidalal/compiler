@@ -6,6 +6,7 @@ int counter=1;
 %}
 %x comment
 %%
+[ \t] ;
 "bool" {return TYPE_BOOL;}
 "char" {return TYPE_CHAR;}
 "int" {return TYPE_INT;}
@@ -44,19 +45,18 @@ true {return BOOL_TRUE;}
 false return BOOL_FALSE;
 "{"		{ return '{'; }
 "}"		{ return '}' ; }
-\(			{ return '('; }
-\)			{ return ')'; }
-\[			{ return '['; }
-\]			{ return ']'; }
+"("			{ return '('; }
+")"			{ return ')'; }
+"["			{ return '['; }
+"]"			{ return ']'; }
 ";" return ';';
 ":" return ':';
 "," return ',';
-0|[-+]?[[1-9][0-9]*]*\.?[0-9]+([eE][-+]?[0-9]+)? { yylval = strdup(yytext); return REAL;}
+(0|([-])?([1-9]+[0-9]*))|(0[xX][0-9A-F]+) { yylval = strdup(yytext);  return INT; }
+0|[-]?[[1-9][0-9]*]*\.?[0-9]+([eE][-+]?[0-9]+)? { yylval = strdup(yytext); return REAL;}
 [a-zA-Z][0-9a-zA-Z_]* { yylval = strdup(yytext); return ID;}
-[1-9][0-9]*|0|[0x|0X][0-9A-F]+ { yylval = strdup(yytext); return INT; }
 [\'][a-zA-Z0-9][\'] { yylval = strdup(yytext); return CHAR;}
 [\"][^\"^\n]*[\"] {  yylval = strdup(yytext); return STRING;}
-[ \t] ;
 \n ; counter++;
 . return yytext[0]; ;
 "/%" BEGIN comment;

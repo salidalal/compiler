@@ -34,7 +34,7 @@ void addToTree(Node* son, Node* parent)
 
 void printTree(Node* tree){
 	printNode(tree,1);
-    printer(tree);
+    //printer(tree);
 }
 
 

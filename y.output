@@ -133,7 +133,7 @@ Grammar
    90     | TYPE_BOOL
    91     | TYPE_CHAR
    92     | TYPE_REAL
-   93     | TYPE_STRING '[' int ']'
+   93     | TYPE_STRING '[' INT ']'
    94     | INT_PTR
    95     | CHAR_PTR
    96     | REAL_PTR
@@ -198,7 +198,7 @@ BOOL_TRUE (276) 103
 BOOL_FALSE (277) 104
 REAL (278) 107
 ID (279) 78 97 98 99
-INT (280) 35 108
+INT (280) 35 93 108
 CHAR (281) 106
 STRING (282) 105
 AND (283) 74
@@ -316,7 +316,7 @@ char (98)
 real (99)
     on left: 107, on right: 83
 int (100)
-    on left: 108, on right: 84 93
+    on left: 108, on right: 84
 null (101)
     on left: 109, on right: 88
 
@@ -951,7 +951,7 @@ State 62
 
 State 63
 
-   93 type: TYPE_STRING . '[' int ']'
+   93 type: TYPE_STRING . '[' INT ']'
 
     '['  shift, and go to state 108
 
@@ -1531,11 +1531,9 @@ State 107
 
 State 108
 
-   93 type: TYPE_STRING '[' . int ']'
+   93 type: TYPE_STRING '[' . INT ']'
 
-    INT  shift, and go to state 80
-
-    int  go to state 153
+    INT  shift, and go to state 153
 
 
 State 109
@@ -2331,7 +2329,7 @@ State 152
 
 State 153
 
-   93 type: TYPE_STRING '[' int . ']'
+   93 type: TYPE_STRING '[' INT . ']'
 
     ']'  shift, and go to state 182
 
@@ -2904,7 +2902,7 @@ State 181
 
 State 182
 
-   93 type: TYPE_STRING '[' int ']' .
+   93 type: TYPE_STRING '[' INT ']' .
 
     $default  reduce using rule 93 (type)
 
