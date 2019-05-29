@@ -60,7 +60,8 @@ code_pros:			code_pros proc	{addToTree($2,tree);}
 				|	/*epsilon*/
 				;
 
-func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],$7->sons[2],NULL);}
+func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {printf("startfunc\n");
+													$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],NULL); printf("DONEFUNC\n");}
 				;
 
 
@@ -77,7 +78,14 @@ get_arg:			args_list {   $$=$1; }
 				;
 
 args_list:			no_args{ $1->value = "ARGS NONE"; $$ = $1; }
-				|	yes_args{ if(!strcmp("REC ARGS",$1->value)){Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;} else{$1=makeNode("",$1);} $1->value="ARGS"; $$ = $1; }
+				|	yes_args{       if(!strcmp("REC ARGS",$1->value))
+										{Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;}
+									else
+										{$1=makeNode("",$1);}	
+									$1->value="ARGS"; $$ = $1;
+									printf("%s, %s, %s, %d\n",$1->value,$1->sons[0]->value,$1->sons[0]->sons[0]->value,$1->sons[0]->size);	  
+									
+							}
 				;
 				
 			
@@ -178,6 +186,8 @@ ids: 					ids ',' id {$$=makeNode("REC ARGS",$3,$1,NULL);}
 					;
 
 initign_statment:		lhs EQ expression semico {$$=makeNode("=",$1,$3,NULL); }
+					|	DEREF lhs EQ expression semico {$$=makeNode("=",makeNode("^",$2,NULL),$4,NULL); }
+
 					;
 
 					
@@ -200,6 +210,7 @@ for_cond:				init semico expression semico init {$$=makeNode("",$1,$3,$5,NULL);}
 					;
 
 init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
+					|	DEREF lhs EQ expression {$$=makeNode("=",makeNode("^",$2,NULL),$4,NULL); }
 					;
 
 
@@ -223,15 +234,17 @@ expression:				expression PLUS expression {$$=makeNode("+",$1,$3,NULL);}
 					|	expression AND expression {$$=makeNode("&&",$1,$3,NULL);}	
 					|	'(' expression ')' {$$=$2;}
 					|	value {$$=$1;}
+					|	DEREF expression { $$=makeNode((char*)$1,$2,NULL); }
+					| 	AMP expression { $$=makeNode((char*)$1,$2,NULL);}; 
 					;
 
 
 lhs :					id {$$ = $1; }
-					|	ID '[' expression ']' {$$ = makeNode("ARR",makeNode((char*)$1,NULL),$3,NULL);}
+					|	id '[' expression ']' {$$ = makeNode("ARR",makeNode((char*)$1->value,NULL),$3,NULL);}
 					;
 
 
-value:					id | boolean | string | char | real | int | len | call | ref | null
+value:					lhs | boolean | string | char | real | int | len | call  | null
 					;
 
 type:					TYPE_INT {$$=makeNode("INT",NULL);}
@@ -245,11 +258,11 @@ type:					TYPE_INT {$$=makeNode("INT",NULL);}
 					;
 
 id:						ID {$$=makeNode((char*)$1,NULL) ; }
-					|	DEREF ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }
+
+					
 					;
 
-ref:					AMP ID { $$=makeNode((char*)$1,makeNode((char*)$2,NULL),NULL); }					
-					;
+
 				
 
 

@@ -282,7 +282,7 @@ char * getVarType(Node *node){
     else if(!strcmp(node->value, "CALL")){     
         MethodNode = getMethod(node);
         if(!MethodNode){
-            addError("Need to define method before calling it");
+            addError("Must Define Methods Befor Call");
             return NULL;
         }
         if(!strcmp(MethodNode->value, "PROC")){
@@ -498,9 +498,14 @@ char * stringInt(int num){
 void checkCall(Node *callNode){
     Node * MethodNode = getMethod(callNode);
     Node * nodeArgs = callNode->sons[0]; 
-    SymTable *tbl = findTbl(MethodNode);
+    SymTable *tbl = findTbl(MethodNode);  
+    if(!tbl){
+        addError("Must Define Methods Befor Call");
+        return;
+    }  
     Symbol *sym = tbl->head; 
     char *argType = NULL;
+    
     int i, countMatch = 0, expectedNumOfArgs = tblSize(tbl);;
 
     if(!MethodNode){

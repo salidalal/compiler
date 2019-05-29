@@ -55,7 +55,7 @@ false return BOOL_FALSE;
 (0|([-])?([1-9]+[0-9]*))|(0[xX][0-9A-F]+) { yylval = strdup(yytext);  return INT; }
 0|[-]?[[1-9][0-9]*]*\.?[0-9]+([eE][-+]?[0-9]+)? { yylval = strdup(yytext); return REAL;}
 [a-zA-Z][0-9a-zA-Z_]* { yylval = strdup(yytext); return ID;}
-[\'][a-zA-Z0-9][\'] { yylval = strdup(yytext); return CHAR;}
+\'.\' { yylval = strdup(yytext); return CHAR;}
 [\"][^\"^\n]*[\"] {  yylval = strdup(yytext); return STRING;}
 \n ; counter++;
 . return yytext[0]; ;

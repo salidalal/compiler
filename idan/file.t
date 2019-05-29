@@ -1,30 +1,22 @@
-func x1(a,b : int;f:real) return int
+
+
+func foo3() return int
 {
-	if (a==b)
-		return 11;
-	else 
-		return 12;
-	return 1;
+    
+        var temp : int;
+        temp = t * t;
+        return temp;
+  
+
 }
 
 
 
 
-proc Main()
+
+proc Main() /% return int %/
 {
-	
-	var a,b:int;
-	var c:int;
-	var x:real;
-    x=x1(c,a,x);
-	/%x=b;%/
-	a = 0;
-	while(a < 10)
-        {
-		b =8;
-		a = a + b;
-		a = a;
-	}
+    
+    var a : int;
+    a = foo3();
 }
-
-
