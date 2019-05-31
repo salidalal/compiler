@@ -1,22 +1,24 @@
 
 
-func foo3() return int not working with args in func
+func foo3(i, j, k : int) return int
 {
-    
+    func square(t : int) /% function declarations %/ return int
+    {
         var temp : int;
         temp = t * t;
         return temp;
-  
+    }
 
+    var total : int;                       /% variable declarations %/
+    var bo : bool;
+    bo = foo1(i,j,k,'^');
+    /% j = foo2(); %/
+    total = square(i+j+k);
+    total = square(1);                    /% statements %/
+    return total;
 }
-
-
-
-
 
 proc Main() /% return int %/
 {
-    
     var a : int;
-    a = foo3();
 }

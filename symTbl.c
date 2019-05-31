@@ -344,7 +344,7 @@ char * getResultType(char *operator, char *left, char *right){
     if(!right){ // unary
         if(!strcmp(operator, "!") && !strcmp(left, "BOOL"))
             return "BOOL";
-        else if(!strcmp(operator, "LEN")  && !strcmp(left, "string") )
+        else if(!strcmp(operator, "LEN")  && !strcmp(left, "STRING") )
             return "INT";
         else if(!strcmp(operator, "&")){
             if(!strcmp(left, "INT"))
@@ -496,6 +496,7 @@ char * stringInt(int num){
 
 
 void checkCall(Node *callNode){
+    //printf("LOOK\n");printNode(callNode,1);
     Node * MethodNode = getMethod(callNode);
     Node * nodeArgs = callNode->sons[0]; 
     SymTable *tbl = findTbl(MethodNode);  
@@ -513,8 +514,9 @@ void checkCall(Node *callNode){
         return;
     }
 
-
+//printNode(nodeArgs,1);
     if(expectedNumOfArgs != nodeArgs->size){
+
         addError("Wrong number of arguments to function");
         return;
     }

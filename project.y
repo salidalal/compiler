@@ -60,8 +60,8 @@ code_pros:			code_pros proc	{addToTree($2,tree);}
 				|	/*epsilon*/
 				;
 
-func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {printf("startfunc\n");
-													$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],NULL); printf("DONEFUNC\n");}
+func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {
+													$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],NULL); }
 				;
 
 
@@ -81,17 +81,15 @@ args_list:			no_args{ $1->value = "ARGS NONE"; $$ = $1; }
 				|	yes_args{       if(!strcmp("REC ARGS",$1->value))
 										{Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;}
 									else
-										{$1=makeNode("",$1);}	
-									$1->value="ARGS"; $$ = $1;
-									printf("%s, %s, %s, %d\n",$1->value,$1->sons[0]->value,$1->sons[0]->sons[0]->value,$1->sons[0]->size);	  
-									
+										{$1=makeNode("",$1,NULL);}	
+									$1->value="ARGS"; $$ = $1;	  									
 							}
 				;
 				
 			
 yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  temp->value = $3->value; $$ = temp ; }							
 				|	yes_args ';' args ':' arg_type {    Node*temp = makeNode("",NULL);fixRec($3,temp);  temp->value =$5->value; $3 = makeNode($5->value,temp,NULL); 
-													$$ = makeNode("REC ARGS",temp,$1); }
+													$$ = makeNode("REC ARGS",temp,$1,NULL); }
 				;
 
 args:				id {$$=$1;}
@@ -100,11 +98,13 @@ args:				id {$$=$1;}
 no_args:			/*epsilon*/ {$$=makeNode("NONE",NULL);}
 				;
 
+
 call_args:			args_2 { Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp; }
 				|	no_args { $$ = $1; }
 				;
 
-args_2:				expression {$$=$1;}
+
+args_2:				expression {$$=$1; printNode($1,1);}
 				|	args_2 ',' expression { $$=makeNode("REC ARGS",$3,$1,NULL);}
 				;
 
