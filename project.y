@@ -38,10 +38,11 @@ extern char* yytext;
 %token '{' '}' '(' ')' '[' ']'
 
 
+%left OR AND
 %left NOTEQ EQ ';' ','
 %left GT GTE LT LTE EQEQ NOT
 %left '{' '}' '(' ')' '['']'
-%left DEREF OR AND AMP
+%left DEREF AMP
 %left MINUS PLUS MUL DIVIDE
 
 
@@ -60,7 +61,7 @@ code_pros:			code_pros proc	{addToTree($2,tree);}
 				|	/*epsilon*/
 				;
 
-func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func {
+func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func { 
 													$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],NULL); }
 				;
 
@@ -107,7 +108,7 @@ call_args:			args_2 { if(!strcmp($1->value,"REC ARGS"))
 				;
 
 
-args_2:				expression {$$=$1; printNode($1,1);}
+args_2:				expression {$$=$1;}
 				|	args_2 ',' expression { $$=makeNode("REC ARGS",$3,$1,NULL);}
 				;
 
@@ -237,7 +238,7 @@ expression:				expression PLUS expression {$$=makeNode("+",$1,$3,NULL);}
 					|	expression AND expression {$$=makeNode("&&",$1,$3,NULL);}	
 					|	'(' expression ')' {$$=$2;}
 					|	value {$$=$1;}
-					|	DEREF expression { $$=makeNode("^",$2,NULL); printNode($$,1);}
+					|	DEREF expression { $$=makeNode("^",$2,NULL); }
 					| 	AMP expression { $$=makeNode("&",$2,NULL);}; 
 					;
 
@@ -299,8 +300,6 @@ int main(){
 
 
 
-
-
 void yyerror(char* s){
 	printf("%s: at line %d found token [%s] \n",s,counter,yytext);
 }
@@ -318,7 +317,7 @@ void closeTree(){
 	initScopes(tree);
 
 	printf("\nScopes:\n");
-	//printScopes();
+	printScopes();
 	checks(tree, 1);
     errorSummary();
 

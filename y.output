@@ -1783,10 +1783,8 @@ State 127
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2702,7 +2700,13 @@ State 169
    76           | expression AND expression .
 
     DIVIDE  shift, and go to state 135
+    EQEQ    shift, and go to state 136
+    GT      shift, and go to state 137
+    GTE     shift, and go to state 138
+    LT      shift, and go to state 139
+    LTE     shift, and go to state 140
     MINUS   shift, and go to state 141
+    NOTEQ   shift, and go to state 142
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2744,10 +2748,8 @@ State 171
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2770,10 +2772,8 @@ State 172
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2796,10 +2796,8 @@ State 173
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2822,10 +2820,8 @@ State 174
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2848,10 +2844,8 @@ State 175
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2893,7 +2887,6 @@ State 177
    75           | expression . OR expression
    76           | expression . AND expression
 
-    AND     shift, and go to state 134
     DIVIDE  shift, and go to state 135
     EQEQ    shift, and go to state 136
     GT      shift, and go to state 137
@@ -2901,7 +2894,6 @@ State 177
     LT      shift, and go to state 139
     LTE     shift, and go to state 140
     MINUS   shift, and go to state 141
-    OR      shift, and go to state 143
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 
@@ -2925,7 +2917,13 @@ State 178
    76           | expression . AND expression
 
     DIVIDE  shift, and go to state 135
+    EQEQ    shift, and go to state 136
+    GT      shift, and go to state 137
+    GTE     shift, and go to state 138
+    LT      shift, and go to state 139
+    LTE     shift, and go to state 140
     MINUS   shift, and go to state 141
+    NOTEQ   shift, and go to state 142
     PLUS    shift, and go to state 144
     MUL     shift, and go to state 145
 

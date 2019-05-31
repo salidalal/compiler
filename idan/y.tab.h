@@ -158,8 +158,8 @@ union YYSTYPE
 {
 #line 23 "file.y" /* yacc.c:1909  */
 
-  char* value;
-  Node* nPtr;
+    char *value;
+    Node *nPtr;
 
 #line 165 "y.tab.h" /* yacc.c:1909  */
 };

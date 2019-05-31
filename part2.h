@@ -88,7 +88,7 @@ void printSymbol(Symbol *);
 int tblSize(SymTable *);
 
 void errorSummary();
-void addError(const char *);
+void pushErr(const char *);
 void checks(Node *, int );
 Node * findScopeNode(Node *);
 int isString(char*);
@@ -105,7 +105,7 @@ void initScopes(Node *);
 opType operatorType(char *);
 char * getVarType(Node *);
 char * getResultType(char *operator, char *left, char *right);
-char * evalExpression(Node *);
+char * eval(Node *);
 
 
 
@@ -131,7 +131,7 @@ char * evalExpression(Node *);
 
 int yydebug=1;
 int lastChild = 0;
-char **semErrors = NULL;
+char semErrors[200][200];
 int ErrorListSize = 0;
 
 SymTable *scopes_head = NULL;

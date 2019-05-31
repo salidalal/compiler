@@ -92,10 +92,8 @@ SymTable * findTbl(Node *scopeNode){
 
 
 void printSymbol(Symbol *sym){
-    if(sym->value)
-        printf("Id: %s\tType: %s\tValue: %s\tSym type: ", sym->id,sym->type, sym->value);
-    else
-        printf("Id: %s\tType: %s\tValue: NULL\tSym type: ", sym->id,sym->type);
+    
+    printf("%-15s| name: %-15s| Value: %-15s| SymbolType:  ",sym->type, sym->id, sym->value);
 
     if(sym->idType == VARIABLE)
         printf("VARIABLE\n");
@@ -112,6 +110,7 @@ void printTable(SymTable *tbl){
         printSymbol(sym);
         sym = sym->next;
     }
+    printf("\n");
 }
 
 
@@ -179,7 +178,7 @@ void checks(Node *node, int level){
     else if(!strcmp(value, "CALL"))
         checkCall(node);
     if(operatorType(value) != NONE){
-        evalExpression(node);
+        eval(node);
     }
     //printf("done %s\n",node->value);
     //printf("DONE\n");
@@ -271,7 +270,7 @@ Symbol * searchSymbol(Node *scope, char *id, variableType idType){
 }
 
 
-char * getVarType(Node *node){
+char * getType(Node *node){
     Node *MethodNode = NULL;
     Symbol *sym  = NULL;
     if(!strcmp(node->value,"TRUE") || !strcmp(node->value, "FALSE"))
@@ -282,11 +281,11 @@ char * getVarType(Node *node){
     else if(!strcmp(node->value, "CALL")){     
         MethodNode = getMethod(node);
         if(!MethodNode){
-            addError("Must Define Methods Befor Call");
+            pushErr("Must Define Methods Befor Call");
             return NULL;
         }
         if(!strcmp(MethodNode->value, "PROC")){
-            addError("Procedure dosen't return a value");
+            pushErr("Procedure dosen't return a value");
             return NULL;
         }
         return MethodNode->sons[2]->sons[0]->value;
@@ -295,7 +294,7 @@ char * getVarType(Node *node){
     if(!isNumber(node->value) && !isString(node->value)){     //If node is not a constant
         sym = searchSymbol(node, node->value, VARIABLE);
         if(!sym){
-            addError("Need to declare vars before use");
+            pushErr("Need to declare vars before use");
             return "";
         }
         
@@ -424,26 +423,26 @@ char * getResultType(char *operator, char *left, char *right){
             !strcmp(right, "INT"))   
             return left;
     }
-    addError(concat("illegal operation with operator ", operator));
-    printf("%s,%s,%s\n",operator,left,right);
+    pushErr(concat("illegal operation with operator ", operator));
+//    printf("%s,%s,%s\n",operator,left,right);
     return " ";
     
 }
 
 
-char * evalExpression(Node *node){
+char * eval(Node *node){
     char *left = NULL, *right = NULL;
     if(node->size == 0 || !strcmp(node->value, "CALL"))         
-        return getVarType(node);
+        return getType(node);
 
     if(node->size == 1){        
-        left = evalExpression(node->sons[0]);
+        left = eval(node->sons[0]);
         return getResultType(node->value, left, NULL);
     }
 
     if(node->size == 2){       
-        left = evalExpression(node->sons[0]);
-        right = evalExpression(node->sons[1]);
+        left = eval(node->sons[0]);
+        right = eval(node->sons[1]);
         return getResultType(node->value, left, right);
     }
 
@@ -452,7 +451,7 @@ char * evalExpression(Node *node){
 void checkReturn(Node *ret){
 
     Node *MethodNode = ret;
-    char * resultType = evalExpression(ret->sons[0]), *expectedResult = NULL;
+    char * resultType = eval(ret->sons[0]), *expectedResult = NULL;
   
     while(strcmp(MethodNode->value, "FUNC"))
         MethodNode = MethodNode->parent;
@@ -460,25 +459,25 @@ void checkReturn(Node *ret){
     
     expectedResult = MethodNode->sons[2]->sons[0]->value;
     if(!strcmp(resultType, "STRING"))
-        addError("Strings cannot be returned from functions");
+        pushErr("Strings cannot be returned from functions");
 
     else if(strcmp(resultType, expectedResult)){
 //        printf("LOOK HERE - expec =%s - res = %s\n",resultType, expectedResult);
-        addError("Wrong return type");
+        pushErr("Wrong return type");
     }
 
 }
 
-void isBool(Node *statementNode){
+void isBool(Node *node){
     Node *condNode = NULL;
     
-    if(!strcmp(statementNode->value, "FOR"))
-        condNode = statementNode->sons[1];
+    if(!strcmp(node->value, "FOR"))
+        condNode = node->sons[1];
     else
-        condNode = statementNode->sons[0];
+        condNode = node->sons[0];
 
-    if(strcmp(evalExpression(condNode), "BOOL") )
-        addError("Condition expression should be of type boolean");
+    if(strcmp(eval(condNode), "BOOL") )
+        pushErr("Condition expression should be of type boolean");
 
 }
 
@@ -497,6 +496,15 @@ char * stringInt(int num){
 }
 
 
+int isEXP(Node* node){
+    char* val = node->value;
+    if( !strcmp(val,"+") || !strcmp(val,"-") || !strcmp(val,"*") || !strcmp(val,"\\")  )
+        return 1;
+    return 0;
+}
+
+
+
 
 void checkCall(Node *callNode){
     //printf("LOOK\n");printNode(callNode,1);
@@ -504,51 +512,57 @@ void checkCall(Node *callNode){
     Node * nodeArgs = callNode->sons[0]; 
     SymTable *tbl = findTbl(MethodNode);  
     if(!tbl){
-        addError("Must Define Methods Befor Call");
+        pushErr("Must Define Methods Befor Call");
         return;
     }  
     Symbol *sym = tbl->head; 
-    char *argType = NULL;
+    char *curType = NULL;
     
-    int i, countMatch = 0, expectedNumOfArgs = tblSize(tbl);;
+    int i, curNum = 0, expNumArgs = tblSize(tbl);;
 
     if(!MethodNode){
-        addError("Define Function Befor Call");
+        pushErr(concat(nodeArgs->value," is Not defined - Define Function Befor Call"));
         return;
     }
 
 //printNode(nodeArgs,1);
-    if(expectedNumOfArgs != nodeArgs->size){
+    if(expNumArgs != nodeArgs->size){
 
-        addError("Wrong number of arguments to function");
+        pushErr(concat("Wrong number of arguments to the method ",nodeArgs->value));
         return;
     }
 
     for(i = 0; i < nodeArgs->size; i++){
-        argType = getVarType(nodeArgs->sons[i]);
-        if(!argType){               
-            addError("Must declare vars before use");
+        //printNode(nodeArgs,1);
+        if(isEXP(nodeArgs->sons[i]))
+            curType= eval(nodeArgs->sons[i]);
+        else
+            curType = getType(nodeArgs->sons[i]);
+        if(!curType){               
+            pushErr("Must declare vars before use");
             return;
         }
         if(sym){
-            if(!strcmp(argType, sym->type))   
-                countMatch++;
+            //printf("arg-%s sym-%s\n",curType, sym->type);
+            if(!strcmp(curType, sym->type))   
+                curNum++;
             sym = sym->next;
         }
     }
 
-    if(expectedNumOfArgs != countMatch){
-        printNode(nodeArgs,1);
-        printf("%s\n",getVarType(nodeArgs->sons[0]));
-        addError("Wrong argument type passed to funtion");
+    if(expNumArgs != curNum){
+        //printNode(nodeArgs,1);
+        //printf("%s\n",getType(nodeArgs->sons[0]));
+        pushErr("Wrong argument type passed to funtion");
     }
     return;
 }
 
 
-int stringSize(Node *stringNode){
+int strLen(Node *stringNode){
     char buffer[100];
     char *stringPtr = stringNode->value, *bufferPtr = buffer;
+
     int res;
     while(*stringPtr != '[')
         stringPtr++;
@@ -576,7 +590,7 @@ void initScopes(Node *node){
 
     char *strId = node->value;
     
-    if(isScope(node->value)){
+    if(isScope(strId)){
         newScope = createSymTbl(node);
         addTable(newScope);
         scopeNode = findScopeNode(node);
@@ -585,7 +599,7 @@ void initScopes(Node *node){
             newSym = createSymbol(node->sons[0]->value, strId, NULL, FUNCTION);
             table = findTbl(scopeNode);
             if(!addSymbol(table, newSym))
-                addError("Method definition is already exsist");
+                pushErr("Method definition is already exsist");
             }       
         }
     }
@@ -597,23 +611,23 @@ void initScopes(Node *node){
         for(i = 0; i < node->size; i++){     //for each type
             for(j = 0; j < node->sons[i]->size; j++){   //for each var/arg
                 if(strcmp(node->sons[i]->value, "STRING") >= 0){   //If variable type is string, creating symbol for each cell
-                    strSize = stringSize(node->sons[i]);
+                    strSize = strLen(node->sons[i]);
                     if(strSize <= 0){
-                        addError("Invalid string decleration");
+                        pushErr("Invalid string decleration");
                     }
                     else{
                         char*temp = node->sons[i]->sons[j]->value;
                         if(!addSymbol(table, createSymbol(temp, "STRING", NULL, VARIABLE)))
-                                addError("Conflicting local variable or argument name");
+                                pushErr("Conflicting local variable or argument name");
                         for(k = 0; k < strSize; k++){
                             strId = concat(concat(concat(temp, "["), stringInt(k)),"]");
                             if(!addSymbol(table, createSymbol(strId, "CHAR", NULL, VARIABLE)))
-                                addError("Conflicting local variable or argument name");
+                                pushErr("Conflicting local variable or argument name");
                         }
                     } 
                 }
                 else if(!addSymbol(table, createSymbol(node->sons[i]->sons[j]->value, node->sons[i]->value, NULL, VARIABLE)) )
-                    addError("Conflicting local variable or argument name");
+                    pushErr("Conflicting local variable or argument name");
             }
         }
     }
@@ -636,13 +650,13 @@ void checkMain(Node *code){
     }
     switch(cou){
 
-        case 0: addError("The Main proc is not defined"); break;
+        case 0: pushErr("The Main proc is not defined"); break;
         
         case 1:
             if(strcmp(value, "Main"))
-                addError("Main function must be the last one");
+                pushErr("Main function must be the last method declared");
                 break;
-        default: addError("More than one Main function");
+        default: pushErr("More than one Main function declared");
     }
 }
 
@@ -670,30 +684,13 @@ void errorSummary(){
     
 }
 
-void addError(const char *err){
+void pushErr(const char *err){
     int i;
-    
-    char *ERROR = concat("",err);
-    char **temp = NULL;
 
-    if(ErrorListSize < 1){
-        semErrors = (char**) malloc (sizeof(char*));
-        semErrors[0] = ERROR;
-        ErrorListSize = 1;
-    }
-    else{
-        for(i = 0; i < ErrorListSize; i++){
-            if(!strcmp(ERROR, semErrors[i]))
-                return;
-        }
-        temp = (char **) malloc (((ErrorListSize) + 1) * (sizeof(char*)));
-        for(i = 0; i < ErrorListSize; i++)
-            temp[i] = semErrors[i];
-        temp[ErrorListSize] = ERROR;
-        free(semErrors);
-        semErrors = temp;
-        ErrorListSize++;
-    }
+    for (i=0; i<ErrorListSize; i++)
+        if(!strcmp(err,semErrors[i]))
+            return;
+    strcpy(semErrors[ErrorListSize++], err);
 }
 
 

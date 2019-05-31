@@ -53,6 +53,10 @@ typedef struct SymTable{
     SymTable *next;
 } SymTable;
 
+
+
+
+
 // YACC functions
 void yyerror(char *s);
 int yywrap();
@@ -100,18 +104,30 @@ int isConst(Node *node);
 Symbol * searchSymbol(Node *scope, char *id, identifierType idType);
 void initScopes(Node *node);
 
-
 // Three address code functions
+
+void handleWhile(Node *whileNode);
+void handleFor(Node *forNode);
+void handleIf(Node *ifNode);
+void handleBlock(Node *blockNode);
+void handleReturn(Node *returnNode);
+void handleRest(Node *node);
+void handleFunc(Node *funcNode);
+void handleCode(Node *codeNode);
+char * getNewLabel();
+int freshLabel();
 int freshVar();
 char * getNewVar();
-void generateAssign3AC(Node *assignNode);
+void start3AC(Node *root);
+void handleExpressions(Node *root);
 void generateExpression3AC(Node *node);
 void scanExpressions(Node *node);
 void printCode(Node *node);
-
+void printAllCodes(Node *node);
 
 // Utilities functions
 char * appendStrings(char *str1, char *str2);
+char * appStrings(void *first, ...);
 int countWords(char *string);
 char ** parseString(char *var, int size);
 char * intToString(int num);
@@ -125,6 +141,7 @@ int yydebug=1;
 SymTable *scopes_head = NULL;
 
 static int fvar = 0;
+static int flab = 0;
 
 
 #endif

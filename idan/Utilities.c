@@ -28,6 +28,47 @@ char * appendStrings(char *str1, char *str2){
     return app;
 }
 
+char * appStrings(void *first, ...){
+    int i, j, size = 0;
+    va_list countPointer, listPointer;
+    char *string = NULL, *destPtr = NULL, *srcPtr = NULL, *dest = NULL;
+    
+
+    //Counting sizes of strings passed
+    va_start(countPointer, first);
+    do{
+        string = (char *) va_arg(countPointer, char *);
+        if(string != NULL){
+            size += strlen(string);
+            printf("Size of string %s: %d\n", string, (int)strlen(string));
+        }
+        printf("1\n");
+            
+    }while(string != NULL);
+    // printf("total size = %d\n", size);
+
+    dest = (char *) malloc ((size + 1) * sizeof(char));
+    destPtr = dest;
+    printf("2\n");
+    va_start(listPointer, first);
+    do{
+        string = va_arg(listPointer, char *);
+        if(string != NULL){
+            srcPtr = string;
+            while(*srcPtr != '\0'){
+                *destPtr = *srcPtr;
+                destPtr++;
+                srcPtr++;
+            }
+            
+        }
+            
+    }while(string != NULL);
+    *destPtr = '\0';
+    return dest;
+
+}
+
 //The following functions are for counting words in a string and parsing
 //May not need them
 int countWords(char *string){

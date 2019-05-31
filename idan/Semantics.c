@@ -112,7 +112,6 @@ void checkFunctionCall(Node *callNode){
     for(i = 0; i < argsPtr->numOfChilds; i++){
         argType = getVarType(argsPtr->child[i]);
         if(argType == NULL){                //If variable passed is not defined
-
             newError("Variables must be declared before use");
             return;
         }
@@ -207,8 +206,6 @@ char * getVarType(Node *node){
     }
     if(!number && !string){     //If node is not a constant
         sym = searchSymbol(node, node->token, VARIABLE);
-            printf("LOOK HERE - %s\n",node->token);
-
         if(sym != NULL)
             return sym->type;
         else{
@@ -233,8 +230,6 @@ char * getVarType(Node *node){
 //returns expected operation result type
 //returns empty string and raises error if operation is not valid
 char * getResultType(char *operator, char *left, char *right){
-    printf("\nThe op is %s - %s - %s\n",operator,left, right);
-
     opType type = getOperatorType(operator);
 
     if(right == NULL){  //For unary operators

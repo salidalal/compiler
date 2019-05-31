@@ -947,27 +947,27 @@ return ',';
 case 47:
 YY_RULE_SETUP
 #line 55 "project.l"
-{ yylval = strdup(yytext);  return INT; }
+{ yylval =(Node*) strdup(yytext);  return INT; }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 56 "project.l"
-{ yylval = strdup(yytext); return REAL;}
+{ yylval =(Node*) strdup(yytext); return REAL;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 57 "project.l"
-{ yylval = strdup(yytext); return ID;}
+{ yylval =(Node*) strdup(yytext); return ID;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
 #line 58 "project.l"
-{ yylval = strdup(yytext); return CHAR;}
+{ yylval = (Node*)strdup(yytext); return CHAR;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
 #line 59 "project.l"
-{  yylval = strdup(yytext); return STRING;}
+{  yylval = (Node*)strdup(yytext); return STRING;}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP

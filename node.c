@@ -87,7 +87,8 @@ int getSonsIndex(Node *father, Node *child){
 
 void fixRec(Node*temp,Node*n){
 
-
+    if(!temp)
+        return;
 	//printf("-%s-%d\n",temp->value,(strcmp(temp->value,"=")));;
 
 	if(temp->size==0  || (strcmp(temp->value,"=") == 0) || (strcmp(temp->value,"IF-ELSE") == 0) || (strcmp(temp->value,"IF") == 0)
@@ -102,11 +103,11 @@ void fixRec(Node*temp,Node*n){
         return;
 
 
-    //else if (strcmp(temp->value,"") == 0)
 	
+    if(temp->size==1)
+		addToTree(temp->sons[0],n);
 
-	//printf("-%s--%s--%s-\n",temp->value,temp->sons[0]->sons[0]->value,temp->sons[0]->sons[1]->value);
-	if  (temp && strcmp(temp->sons[1]->value,"REC ARGS"))
+    else if  ( strcmp(temp->sons[1]->value,"REC ARGS"))
 	{
 		addToTree(temp->sons[1],n);
 		addToTree(temp->sons[0],n);
