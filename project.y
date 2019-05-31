@@ -99,7 +99,10 @@ no_args:			/*epsilon*/ {$$=makeNode("NONE",NULL);}
 				;
 
 
-call_args:			args_2 { Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp; }
+call_args:			args_2 { if(!strcmp($1->value,"REC ARGS"))
+								{Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp;}
+							else
+								{$$=makeNode("",$1,NULL);} }
 				|	no_args { $$ = $1; }
 				;
 
@@ -234,8 +237,8 @@ expression:				expression PLUS expression {$$=makeNode("+",$1,$3,NULL);}
 					|	expression AND expression {$$=makeNode("&&",$1,$3,NULL);}	
 					|	'(' expression ')' {$$=$2;}
 					|	value {$$=$1;}
-					|	DEREF expression { $$=makeNode((char*)$1,$2,NULL); }
-					| 	AMP expression { $$=makeNode((char*)$1,$2,NULL);}; 
+					|	DEREF expression { $$=makeNode("^",$2,NULL); printNode($$,1);}
+					| 	AMP expression { $$=makeNode("&",$2,NULL);}; 
 					;
 
 
@@ -315,7 +318,7 @@ void closeTree(){
 	initScopes(tree);
 
 	printf("\nScopes:\n");
-	printScopes();
+	//printScopes();
 	checks(tree, 1);
     errorSummary();
 

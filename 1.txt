@@ -1,22 +1,39 @@
 
 
-func foo3(i, j, k : int) return int
+func foo4() return int
 {
-    func square(t : int) /% function declarations %/ return int
-    {
-        var temp : int;
-        temp = t * t;
-        return temp;
-    }
-
-    var total : int;                       /% variable declarations %/
-    var bo : bool;
-    bo = foo1(i,j,k,'^');
-    /% j = foo2(); %/
-    total = square(i+j+k);
-    total = square(1);                    /% statements %/
-    return total;
+    {   
+	var x : int;
+	var y : int*;
+	x = 5;
+	y = &x;
+	x = 9;
+	if (&x == y && ^y == x){
+		^y = 9;
+	}
+     	{
+		var x : char*;
+		var y : string[ 10];
+		var z : char;
+		y = "foobar";
+		x = &y[ 5];         
+		z = ^(x - 5);       
+		y = "barfoo"; 
+   		{
+			var x : char;
+			var y : int*;
+			var z : char*;
+			var g : char;
+			/% y = &(1+3);
+			y = &x;             
+			z = &(&g); %/
+    		}
+	}
+     }
+    return 0;
 }
+
+
 
 proc Main() /% return int %/
 {

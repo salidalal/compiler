@@ -355,7 +355,7 @@ char * getResultType(char *operator, char *left, char *right){
                 return "CHAR*";
 
         }
-        else if(!strcmp(operator, "DEREF")){
+        else if(!strcmp(operator, "^")){
             if(!strcmp(left, "INT*") )
                 return "INT";
             else if(!strcmp(left, "REAL*"))
@@ -399,14 +399,17 @@ char * getResultType(char *operator, char *left, char *right){
                 (!strcmp(left, "REAL")  && !strcmp(right, "REAL") ) ||
                 (!strcmp(left, "BOOL")  && !strcmp(right, "BOOL") ) ||
                 (!strcmp(left, "CHAR")  && !strcmp(right, "CHAR") ) ||
-                (!strcmp(left, "CHAR*") && !strcmp(right, "CHAR*"))
+                (!strcmp(left, "CHAR*") && !strcmp(right, "CHAR*")) ||
+                (!strcmp(left, "REAL*") && !strcmp(right, "REAL*")) ||
+                (!strcmp(left, "INT*")  && !strcmp(right, "INT*") ) 
+                
             )
             
         )
         return "BOOL";
 
-        else if(!strcmp(operator, "[]") && !strcmp(left, "STRING") && !strcmp(right, "INT"))
-            return "char";
+        else if(!strcmp(operator, "ARR") && !strcmp(left, "STRING") && !strcmp(right, "INT"))
+            return "CHAR";
 
         else if(
             !strcmp(operator, "=") &&
@@ -422,7 +425,7 @@ char * getResultType(char *operator, char *left, char *right){
             return left;
     }
     addError(concat("illegal operation with operator ", operator));
-    //printf("%s,%s,%s\n",operator,left,right);
+    printf("%s,%s,%s\n",operator,left,right);
     return " ";
     
 }
@@ -534,8 +537,11 @@ void checkCall(Node *callNode){
         }
     }
 
-    if(expectedNumOfArgs != countMatch)
+    if(expectedNumOfArgs != countMatch){
+        printNode(nodeArgs,1);
+        printf("%s\n",getVarType(nodeArgs->sons[0]));
         addError("Wrong argument type passed to funtion");
+    }
     return;
 }
 
