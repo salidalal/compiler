@@ -49,7 +49,7 @@ Node *makeNode( char *value,char*var,char*code, ...)
     newNode->var = concat("",var);
     newNode->code = concat("",code);
     //Counting number of arguments passed
-    va_start(countPointer, value);
+    va_start(countPointer, code);
     do{
         getArg = va_arg(countPointer, Node *);
         if(getArg != NULL)
@@ -59,7 +59,7 @@ Node *makeNode( char *value,char*var,char*code, ...)
     //Assigining children to array
     if(count != 0){
         newNode->size = count;
-        va_start(listPointer, value);
+        va_start(listPointer, code);
         newNode->sons = (Node**) malloc (count * sizeof(Node *));
         for(i = 0; i < count; i++){
             (newNode->sons)[i] = va_arg(listPointer, Node *);
