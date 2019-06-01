@@ -7,6 +7,8 @@
 #include "node.c"
 #include "symTbl.c"
 #include "part3.c"
+
+
 Node * tree;
 int size =0;
 void closeTree();
@@ -323,5 +325,6 @@ void closeTree(){
 	//printScopes();
 	checks(tree, 1);
     errorSummary();
+	call3Ac(tree);
 
 }

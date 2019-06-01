@@ -1,1 +1,0 @@
-int codeCounter=0;

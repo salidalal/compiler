@@ -6,6 +6,8 @@
 #include <malloc.h>
 
 char * concat (const char* s1, const char* s2) {
+    if(!s1 && !s2)
+        return "";
 	char *result =(char*) malloc(strlen(s1)+strlen(s2)+1);
 	strcpy(result,s1);
 	strcat(result,s2);
@@ -161,6 +163,23 @@ Node *currentEmptyNode = NULL;
 
 
 
+
+
+
+int labelCounter=1;
+int codeCounter=0;
+int isDeclaration(Node* node);
+int isMethodId(Node* node);
+int isCall(Node*node);
+void call3Ac(Node* node);
+void sendByValue(Node* node);
+void closeCode(Node * tree);
+void closeConstOP(Node * node);
+void closeUnaryOP(Node * node);
+void closeAss(Node* node);
+void closeBinaryOP(Node * node);
+void closeMethod(Node *node);
+void closeBody(Node*node);
 
 
 

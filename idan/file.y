@@ -29,13 +29,13 @@
 %token LENGTH PLUS MINUS MULT OR REF DEREF NOT DIFF TRUE FALSE IDENTIFIER
 %token CHARACTER STR MAIN
 
-%left OR
 %left AND
+%left OR
+
 %left GREATER GREATEREQUAL LESS LESSEQUAL EQUAL DIFF
 %left PLUS MINUS
 %left MULT DIVIDE
-// %left OR
-// %left AND
+
 %left LB RB
 %left NOT REF DEREF
 %left ELSE
@@ -58,7 +58,7 @@ program:
             print(pTree);
             printf("Generating intermidate code...\n");
             start3AC(pTree);
-            printf("Code compile successfully\n");
+            printf("Code compiled successfully\n");
         }
         else
             errorSummary();

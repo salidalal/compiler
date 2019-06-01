@@ -54,9 +54,6 @@ typedef struct SymTable{
 } SymTable;
 
 
-
-
-
 // YACC functions
 void yyerror(char *s);
 int yywrap();
@@ -112,7 +109,7 @@ void handleIf(Node *ifNode);
 void handleBlock(Node *blockNode);
 void handleCall(Node *idNode);
 void handleReturn(Node *returnNode);
-void handleRest(Node *node);
+void generate3AC(Node *node);
 void handleFunc(Node *funcNode);
 void handleCode(Node *codeNode);
 char * getNewLabel();
@@ -121,7 +118,6 @@ int freshLabel();
 int freshVar();
 char * getNewVar();
 void start3AC(Node *root);
-void handleExpressions(Node *root);
 void generateExpression3AC(Node *node);
 void scanExpressions(Node *node);
 void outputCode(Node *node);
