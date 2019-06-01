@@ -430,6 +430,12 @@ char * getResultType(char *operator, char *left, char *right){
     
 }
 
+int isPointer(char*value){
+    if(!strcmp(value, "INT*") ||!strcmp(value, "REAL*") || !strcmp(value, "CHAR*"))
+            return 1;
+    return 0;
+}
+
 
 char * eval(Node *node){
     char *left = NULL, *right = NULL;

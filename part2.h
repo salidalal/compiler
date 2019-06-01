@@ -117,6 +117,7 @@ int isString(char*);
 int isNumber(char *);
 int isScope(char *);
 void checkCall(Node *);
+int isPointer(char*);
 void checkMain(Node *);
 void checkReturn(Node *);
 void isBool(Node *);
@@ -124,8 +125,8 @@ int stringSize(Node *);
 Node * getMethod(Node *);
 void initScopes(Node *); 
 opType operatorType(char *);
-char * getVarType(Node *);
-char * getResultType(char *operator, char *left, char *right);
+char * getType(Node *);
+char * getResultType(char *, char *, char *);
 char * eval(Node *);
 
 

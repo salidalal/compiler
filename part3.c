@@ -65,7 +65,7 @@ void sendByValue(Node* node){
     if(!strcmp(value, "FOR"))
         closeFor(node);
 
-    if(!strcmp(value, "IF") || !strcmp(value, "IF-ELSE"))
+    if(!strcmp(value, "IF") || !strcmp(value, "IFELSE"))
         closeIf(node);
 
     if(isCall(node))
@@ -176,7 +176,7 @@ void closeMethod(Node *node){
     while(strcmp(sons[i]->value, "BODY") && strcmp(sons[i++]->value, "BLOCK"));
 
     node->var="";
-    node->code = concat(id,concat(" :\n",concat("BeginFunc\n",concat(sons[i]->code,"EndFunc\n\n\n\n"))));
+    node->code = concat(id,concat(" :\n",concat("BeginFunc\n",concat(sons[i]->code,"EndFunc\n\n\n$"))));
     
 }
 
@@ -200,7 +200,7 @@ void closeWhile(Node* node){
     char* condLab = concat("L",stringInt(labelCounter++));
     char* endLab = concat("L",stringInt(labelCounter++));
     node->var="";
-    node->code = concat("LABEL", concat(condLab,concat(" : ",concat(node->sons[0]->code,
+    node->code = concat("@", concat(condLab,concat(" : ",concat(node->sons[0]->code,
     concat("ifz ",concat(node->sons[0]->var,concat(" GoTo ",concat(endLab,concat("\n",
     concat(node->sons[1]->code,concat("GoTo ",concat(condLab,concat("\nLABLE",
     concat(endLab," : "))))))))))))));
@@ -214,10 +214,85 @@ void closeFor(Node* node){
     char* endLab = concat("L",stringInt(labelCounter++));
 
     node->var="";
-    node->code = concat(sons[0]->code,concat("LABEL",concat(condLab,(concat(" : ",concat(sons[1]->code,
+    node->code = concat(sons[0]->code,concat("@",concat(condLab,(concat(" : ",concat(sons[1]->code,
     concat("ifz ",concat(sons[1]->var,concat(" GoTo ",concat(endLab,concat("\n",
     concat(sons[3]->code,concat(sons[2]->code,concat("GoTo ",concat(condLab,
-    concat("\nLABEL",concat(endLab," : ")))))))))))))))));
+    concat("\n@",concat(endLab," : ")))))))))))))))));
+
+}
+
+
+
+void closeIf(Node * node){
+
+    if(!strcmp(node->value,"IFELSE")){
+        closeIfElse(node);
+        return;
+    }
+    char* condLab = concat("L",stringInt(labelCounter++));
+    Node ** sons = node->sons;
+
+    node->var="";
+    node->code= concat(sons[0]->code,concat("ifz ",concat(sons[0]->var,
+    concat(" GoTo ",concat(condLab,concat("\n",concat(sons[1]->code,
+    concat("@",concat(condLab," : ")))))))));
+
+}
+
+
+
+
+void closeIfElse(Node* node){
+    char* condLab = concat("L",stringInt(labelCounter++));
+    char* elseLab = concat("L",stringInt(labelCounter++));
+    Node** sons=node->sons;
+    node->code= concat(sons[0]->code,concat("ifz ",concat(sons[0]->var,
+    concat(" GoTo ",concat(condLab,concat("\n",concat(sons[1]->code,
+    concat("\@",concat(condLab,concat(" : ",sons[2]->code,
+    concat("@",concat(elseLab," : "))))))))))));
+}
+
+
+
+
+void closeCall(Node*node){
+    node->var=concat(t,stringInt(codeCounter++));
+    node->code="";
+    Node * son = node->sons[0];
+
+    for(int i=0; i<son->size; i++) 
+        node->code=concat(node->code,son->sons[i]->code);
+
+    for(int i=0; i<son->size; i++)
+        node->code=concat(node->code,concat("PushParam ",concat(son->sons[i]->var,"\n")));
+
+    node->code = concat(node->code,concat(node->var,concat(" = LCall ", node->value)));
+    
+    if(node->sons[0]->size){
+        char* charbytes="0";
+        int intbytes = 0;
+        for (int i=0; i<son->size; i++){
+            char* type=NULL;
+
+            switch(son->sons[i]->size){
+                case 0: type=getType(sons->sons[i]);break;
+                default: type=eval(son->sons[i]);break;
+            }
+            if(!type)
+                break; 
+            else if(isPointer(type)|| !strcmp("INT",type))
+                intbytes+=4;
+            else if(!strcmp(type,"CHAR"))
+                intbytes+=1;
+            else if(!strcmp(type,"REAL"))
+                intbytes+=8;
+        }
+        charbytes = stringInt(intbytes);
+
+        node->code = concat(node->code,concat("PopParams ",charbytes ));
+    }
+
+    node->code=concat(node->code,"\n");
 
 }
 
@@ -225,5 +300,42 @@ void closeFor(Node* node){
 
 
 
+void print(Node * tree){
+
+    FILE * outputFile = fopen("output.txt", "w");
+
+    char *code = tree->code, c;
+
+    for (int i=0; code[i]; i++){
+        c=code[i];
+
+        if(c=='\n'){
+            fprintf("\n")
+        }
+    }
+
+
+    while(*code){
+        if(*cursor == '\n'){
+            fputc(*cursor, outputFile);
+            cursor++;
+            if(*cursor == '$'){
+                fputc(32, outputFile);
+                cursor++;
+            }
+            else if (*cursor == '#'){
+                cursor++;
+            }
+            
+            else{
+                fputc('\t', outputFile);
+                fputc(32, outputFile);
+            }
+        }
+        fputc(*cursor, outputFile);
+        cursor++;
+    }
+    fclose(outputFile); 
+}
 
 
