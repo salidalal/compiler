@@ -166,9 +166,13 @@ Node *currentEmptyNode = NULL;
 
 
 
+//part3
+
+
 
 int labelCounter=1;
 int codeCounter=0;
+
 int isDeclaration(Node* node);
 int isMethodId(Node* node);
 int isCall(Node*node);
@@ -181,7 +185,8 @@ void closeAss(Node* node);
 void closeBinaryOP(Node * node);
 void closeMethod(Node *node);
 void closeBody(Node*node);
-
+void print(Node * tree);
+char* getArgsSize(Node* node);
 
 
 

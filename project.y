@@ -296,6 +296,7 @@ null:					TYPE_NULL  {$$=makeNode("NULL",NULL); };
 #include "lex.yy.c"
 int main(){
 	tree= makeNode("CODE", NULL);
+	tree->parent = NULL;
 	return yyparse();
 }
 
@@ -321,10 +322,13 @@ void closeTree(){
 	printTree(tree);
 	initScopes(tree);
 
-	printf("\nScopes:\n");
+	//printf("\nScopes:\n");
 	//printScopes();
 	checks(tree, 1);
     errorSummary();
+
 	call3Ac(tree);
+	printf("HONE\n");
+	print(tree);
 
 }
