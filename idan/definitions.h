@@ -110,11 +110,13 @@ void handleWhile(Node *whileNode);
 void handleFor(Node *forNode);
 void handleIf(Node *ifNode);
 void handleBlock(Node *blockNode);
+void handleCall(Node *idNode);
 void handleReturn(Node *returnNode);
 void handleRest(Node *node);
 void handleFunc(Node *funcNode);
 void handleCode(Node *codeNode);
 char * getNewLabel();
+char * calcParamSize(Node *callNode);
 int freshLabel();
 int freshVar();
 char * getNewVar();
@@ -122,7 +124,7 @@ void start3AC(Node *root);
 void handleExpressions(Node *root);
 void generateExpression3AC(Node *node);
 void scanExpressions(Node *node);
-void printCode(Node *node);
+void outputCode(Node *node);
 void printAllCodes(Node *node);
 
 // Utilities functions
@@ -141,7 +143,7 @@ int yydebug=1;
 SymTable *scopes_head = NULL;
 
 static int fvar = 0;
-static int flab = 0;
+static int flab = 1;
 
 
 #endif

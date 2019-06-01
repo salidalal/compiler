@@ -1,32 +1,14 @@
-/% long
-comment long
-comment %/
-
-func foo1(a, b, y :int; c: char) return bool
+func foo(x: real) return int
 {
-	var res : bool;
-	{
-		var x, b : char;
-		var y: int;
-
-		b = '&';
-		/% a = x; %/ 
-		/% b = 8; %/
-		a = (y * 7)/a-y;
-		/% a = (y * 7)/b-y; %/
-		/% a = (y * 7)/a-c; %/
-
-		res = (b == c) && (y > a);
-		/% res = (b == c) && (y + a); %/
-		/% 3 + 6 = 9; %/
-		/% ^x = 6; %/
-	}
-    	return res ;
+var a: int;
+a = -23;
+if (a == 23)
+a = 10;
+else
+a = 19;
+return a;
 }
 
+proc Main(){
 
-proc Main() /% return int %/
-{
-    var a : int;
-    a = foo2();
 }

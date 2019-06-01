@@ -208,7 +208,7 @@ opType operatorType(char *value){
     else if(!strcmp(value, "="))
         return ASSIGN;
 
-    else if( !strcmp(value, "LEN") || !strcmp(value, "&") ||
+    else if( !strcmp(value, "STRING LEN") || !strcmp(value, "LEN") || !strcmp(value, "&") ||
              !strcmp(value, "!")   || !strcmp(value, "^"))
         return UNARY;
     
@@ -343,7 +343,7 @@ char * getResultType(char *operator, char *left, char *right){
     if(!right){ // unary
         if(!strcmp(operator, "!") && !strcmp(left, "BOOL"))
             return "BOOL";
-        else if(!strcmp(operator, "LEN")  && !strcmp(left, "STRING") )
+        else if((!strcmp(operator, "LEN") ||(!strcmp(operator, "STRING LEN")))   && !strcmp(left, "STRING") )
             return "INT";
         else if(!strcmp(operator, "&")){
             if(!strcmp(left, "INT"))

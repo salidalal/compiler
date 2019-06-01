@@ -5,6 +5,7 @@
 #include <malloc.h>
 #include "definitions.h"
 
+//This function prints code for each node, for personal use
 void printAllCodes(Node *node){
     int i;
     printf("Node: %s\nCode:\n%s\nVar: %s\n\n", node->token, node->code, node->var);
@@ -12,13 +13,11 @@ void printAllCodes(Node *node){
         printAllCodes(node->child[i]);
 }
 
-void printCode(Node *root){
+//This function outputs the generated 3AC code to .txt file
+void outputCode(Node *root){
     char *cursor = root->code;
     FILE * outputFile = fopen("output.txt", "w");
 
-    printf("---------------------\n");
-    printf("\n%s", root->code);
-    printf("---------------------\n");
     while(*cursor != '\0'){
         if(*cursor == '\n'){
             fputc(*cursor, outputFile);
@@ -40,121 +39,58 @@ void printCode(Node *root){
         fputc(*cursor, outputFile);
         cursor++;
     }
-
     fclose(outputFile);
-
 }
 
+//This function starts the 3AC generation process
 void start3AC(Node *root){
-    handleExpressions(root);
+    // handleExpressions(root);
     handleRest(root);
+    outputCode(root);
 }
 
-//This function dispatches an expression node to be handled sepratly
-void handleExpressions(Node *node){
-    int i;
-
-    if(getOperatorType(node->token) != NONE){
-        generateExpression3AC(node);
-        return;
-    }
-
-    for(i = 0; i < node->numOfChilds; i++)
-        handleExpressions(node->child[i]); 
-}
-
-
-// void generateExpression3AC(Node *node){
-//     int i;
-//     for(i = 0; i < node->numOfChilds; i++)
-//         generateExpression3AC(node->child[i]);
-
-
-
-//         if(strcmp(node->token, "=") == 0){
-
-//         }
-
-// }
-
-
-
-
-
-//This function handles generation of 3AC for expressions
+//This function generates 3AC for operands, operators 
 void generateExpression3AC(Node *node){
-    int i, j;
-    for(i = 0; i < node->numOfChilds; i++)
-        generateExpression3AC(node->child[i]);
-    
-    if(node->numOfChilds == 0){     //Leaf nodes, i.e. constants or variables
-        if(strcmp(node->parent->parent->token, "CALL") == 0){       //If node is function call parameter
+
+    //If node is an identifier/constant
+    if(node->numOfChilds == 0){
+        if(isConst(node)){      //Constant
+            printf("Const node: %s\n", node->token);
             node->var = getNewVar();
             node->code = appendStrings(appendStrings(appendStrings(
-                node->var, "="), node->token), "\n");
+                node->var, " = "), node->token), "\n");
         }
-        else{
-            node->var = (char *) malloc ( (strlen(node->token) + 1) * sizeof(char) );
-            strcpy(node->var,node->token);
-            node->code = (char *) malloc ( sizeof(char) );
-            strcpy(node->code ,"");
 
-        }
-    }
-
-    if(node->numOfChilds == 1){
-        if(strcmp(node->token, "CALL") == 0){   //Node is a function call
-            node->var = getNewVar();
+        else{   //Identifier
+            printf("Id node: %s\n", node->token);
+            node->var = appendStrings("", node->token);
             node->code = (char *) malloc (sizeof(char));
-            for(j = 0; j < node->child[0]->numOfChilds; j++)
-                node->code = appendStrings(node->code, node->child[0]->child[j]->code);       //Adding parameters code
-            
-            for(j = 0; j < node->child[0]->numOfChilds; j++)
-                node->code = appendStrings(appendStrings(appendStrings(node->code, "PushParam "), node->child[0]->child[j]->var), "\n");  //Pushing parameters
-            
-            node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-                node->code, node->var), "="), "LCall "), node->child[0]->token), "\n");
-            if(node->child[0]->numOfChilds != 0)
-                node->code = appendStrings(node->code, "PopParams\n");
-
-        }
-        else{
-            node->var = getNewVar();
-            node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-            node->child[0]->code, node->var), " = "), node->token), node->child[0]->var), "\n");
+            strcpy(node->code, "");
         }
     }
 
-    if(node->numOfChilds == 2 && strcmp(node->token, "=") != 0){
-        if(strcmp(node->token, "[]") == 0){
-            node->var = getNewVar();
 
-            node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-                node->child[0]->code, node->child[1]->code), node->var), " = "), "&"), node->child[0]->var), " + "), node->child[1]->var), "\n")
-                ;
+    //Unary operator
+    else if (node->numOfChilds == 1){
+        node->var = getNewVar();
+        node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
+            node->child[0]->code,
+            node->var), " = "), node->token), node->child[0]->var), "\n");
+    }
 
+    else if(node->numOfChilds == 2){    //Binary operator
+        if(strcmp(node->token, "=") == 0){      //Assignment operator
+            node->var = (char *) malloc (sizeof(char));
+            strcpy(node->var, "");
+            node->code = appendStrings(appendStrings(appendStrings(appendStrings(
+                node->child[1]->code, node->child[0]->var), " = "), node->child[1]->var), "\n");
         }
-
-        else{
+        else{       //Other binary operators
             node->var = getNewVar();
             node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-                node->child[0]->code, node->child[1]->code), node->var), " = "), node->child[0]->var), node->token), node->child[1]->var), "\n");
+                node->child[0]->code, node->child[1]->code),
+                node->var), " = "), node->child[0]->var), node->token), node->child[1]->var), "\n");
         }
-
-    }
-    else if(node->numOfChilds == 2 && strcmp(node->token, "=") == 0 && strcmp(node->token, "[]") != 0){
-        if(strcmp(node->child[0]->token, "[]") == 0){
-            node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-                node->child[0]->code, "^"), node->child[0]->var), " = "), node->child[1]->var), "\n");
-        }
-        else{
-            node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-                     node->child[0]->code ,node->child[1]->code), node->child[0]->var), " = "), node->child[1]->var), "\n");
-        }
-        
-        // node->var = getNewVar();
-        // node->code = appendStrings(appendStrings(appendStrings(appendStrings(appendStrings(
-        //              node->child[0]->code ,node->child[1]->code), node->var), " = "), node->child[1]->var), "\n");
     }
 
 }
@@ -162,22 +98,46 @@ void generateExpression3AC(Node *node){
 //This function dispatches to other function to handle code creation for non-expression nodes
 void handleRest(Node *node){
     int i;
+        //Making sure not to check declarations or ret statements
+    if(strcmp(node->token, "ARGS") == 0 || strcmp(node->token, "ARGS NONE") == 0 || strcmp(node->token, "VAR") == 0 || strcmp(node->token, "RET") == 0)
+        return;
+    
+        
+    
+    //Making sure node is not a function/proc name
+    if(node->parent != NULL && 
+    (strcmp(node->parent->token, "PROC") == 0 || strcmp(node->parent->token, "FUNC") == 0) &&
+    getChildIndex(node->parent, node) == 0
+    )
+        return;
+
+
+
     for(i = 0; i < node->numOfChilds; i++)
         handleRest(node->child[i]);
+
+
+
+
     if(strcmp(node->token, "WHILE") == 0)
         handleWhile(node);
-    if(strcmp(node->token, "FOR") == 0)
+    else if(strcmp(node->token, "FOR") == 0)
         handleFor(node);
-    if(strcmp(node->token, "IF") == 0 || strcmp(node->token, "IF-ELSE") == 0)
+    else if(strcmp(node->token, "IF") == 0 || strcmp(node->token, "IF-ELSE") == 0)
         handleIf(node);
-    if(strcmp(node->token, "BLOCK") == 0 || strcmp(node->token, "BODY") == 0)
+    else if(strcmp(node->token, "BLOCK") == 0 || strcmp(node->token, "BODY") == 0)
         handleBlock(node);
-    if(strcmp(node->token, "RETURN") == 0)
+    else if(strcmp(node->token, "RETURN") == 0)
         handleReturn(node);
-    if(strcmp(node->token, "MAIN") == 0 || strcmp(node->token, "PROC") == 0 || strcmp(node->token, "FUNC") == 0)
+    else if(strcmp(node->token, "MAIN") == 0 || strcmp(node->token, "PROC") == 0 || strcmp(node->token, "FUNC") == 0)
         handleFunc(node);
-    if(strcmp(node->token, "CODE") == 0)
+    else if(strcmp(node->token, "CODE") == 0)
         handleCode(node);
+    else if(node->parent != NULL && strcmp(node->parent->token, "CALL") == 0)
+        handleCall(node);
+    else
+        generateExpression3AC(node);
+
 }
 
 //This function handles code creation for code node
@@ -212,15 +172,10 @@ void handleBlock(Node *blockNode){
     blockNode->code = (char *) malloc (sizeof(char));
     strcpy(blockNode->code, "");
     for (i = 0; i < blockNode->numOfChilds; i++){
-        
-        if(strcmp(blockNode->child[i]->token, "VAR") != 0 &&    //Not including nodes that are not statements
-            strcmp(blockNode->child[i]->token, "RET") != 0
-        )
-        {
+        if(strcmp(blockNode->child[i]->token, "VAR") != 0)
             blockNode->code = appendStrings(blockNode->code, blockNode->child[i]->code);
-        }
     }
-
+        
 }
 
 //This function handles code creation for For loop node
@@ -301,6 +256,47 @@ void handleReturn(Node *returnNode){
     else{   //If return value is a constant / variable
         returnNode->code = appendStrings(appendStrings("Return ", returnNode->child[0]->token), "\n" );
     }
+}
+
+void handleCall(Node *callNode){
+
+    
+
+}
+
+//This function calculates size in bytes for function call parameters
+char * calcParamSize(Node *callNode){
+    int size = 0, i;
+    Node *paramPtr = callNode->child[0];
+    char *paramType = NULL;
+
+    for(i = 0; i < paramPtr->numOfChilds; i++){
+        if(paramPtr->child[i]->numOfChilds !=0)             //Getting paramater type
+            paramType = evalExpression(paramPtr->child[i]);
+        else
+            paramType = getVarType(paramPtr->child[i]);
+
+        if(paramType == NULL)
+            return "";
+
+        //Adding size
+
+        if(strcmp(paramType, "int*") == 0 ||strcmp(paramType, "real*") == 0 || strcmp(paramType, "char*") == 0 || strcmp(paramType, "int") == 0)
+            size += 4;
+        
+        else if(strcmp(paramType, "real") == 0)
+            size += 8;
+        
+        else if(strcmp(paramType, "char") == 0)
+            size += 1;
+    }
+
+    if(size == 0)
+        return "";
+
+    //Returning size string
+    return intToString(size);
+
 }
 
 //This function returns a fresh label variable string

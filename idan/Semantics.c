@@ -110,7 +110,11 @@ void checkFunctionCall(Node *callNode){
     }
 
     for(i = 0; i < argsPtr->numOfChilds; i++){
-        argType = getVarType(argsPtr->child[i]);
+        if(argsPtr->child[i]->numOfChilds == 0)
+            argType = getVarType(argsPtr->child[i]);
+        else
+            argType = evalExpression(argsPtr->child[i]);
+
         if(argType == NULL){                //If variable passed is not defined
             newError("Variables must be declared before use");
             return;
@@ -125,6 +129,8 @@ void checkFunctionCall(Node *callNode){
     //Unmatching types
     if(expectedMatch != countMatch)
         newError("Invalid argument type passed to proc/func");
+        
+        
     return;
 }
 
@@ -284,7 +290,9 @@ char * getResultType(char *operator, char *left, char *right){
                 (strcmp(left, "real") == 0 && strcmp(right, "real") == 0) ||
                 (strcmp(left, "bool") == 0 && strcmp(right, "bool") == 0) ||
                 (strcmp(left, "char") == 0 && strcmp(right, "char") == 0) ||
-                (strcmp(left, "char*") == 0 && strcmp(right, "char*") == 0)
+                (strcmp(left, "char*") == 0 && strcmp(right, "char*") == 0) ||
+                (strcmp(left, "int*") == 0 && strcmp(right, "int*") == 0) ||
+                (strcmp(left, "real*") == 0 && strcmp(right, "real*") == 0)
             )
             
         )
@@ -306,6 +314,7 @@ char * getResultType(char *operator, char *left, char *right){
 
             )   return left;
     }
+
     newError(appendStrings("illegal operation with operator ", operator));
     return " ";
     

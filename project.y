@@ -287,7 +287,7 @@ type:					TYPE_INT {   char * code = concat(T,concat(stringInt(codeCounter++),co
 									$$=makeNode("REAL*",var,code,NULL); }
 					;
 
-id:						ID {   char * code = concat((char*)T,concat(stringInt(codeCounter),concat(" = ",yytext)));
+id:						ID {   char * code = "";
 								char * var = concat("",yytext);
 								$$=makeNode(yytext,var,code,NULL); };
 					
@@ -300,37 +300,49 @@ id:						ID {   char * code = concat((char*)T,concat(stringInt(codeCounter),conc
 call:					id '(' call_args ')'  { $1->sons = $3->sons; $1->size = $3->size; $$ = makeNode("CALL","","",$1,NULL); }
 					;
 
-len:					'|' id '|' { $$=makeNode("LEN","","",$2,NULL); }
-					|	'|' string '|' { $$=makeNode("STRING LEN","","",$2,NULL); }
+len:					'|' id '|' {	//TODO
+									 	char* code = concat($2->code,concat(T,concat(stringInt(codeCounter++),
+										concat(" = ",    ))));
+
+										 char * var = concat("T",stringInt(codeCounter-1));
+										$$=makeNode("LEN","","",$2,NULL); }
+
+
+					|	'|' string '|' { int size = strlen($2->value)-2;
+									 	 char* code = concat($2->code,concat(T,concat(stringInt(codeCounter++),
+										 concat(" = ",stringInt(size)    ))));
+
+										 char * var = concat("T",stringInt(codeCounter-1));
+										 $$=makeNode("STRING LEN",var,code,$2,NULL); }
 					;
 
 boolean:				BOOL_TRUE {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								$$=makeNode("TRUE",var,code,NULL); };
 
 					|	BOOL_FALSE {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								$$=makeNode("FALSE",var,code,NULL); };
 					;
 
 string:					STRING {    char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-									char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 									$$=makeNode(yytext,var,code,NULL); };
 
 char:					CHAR {  char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								$$=makeNode(yytext,var,code,NULL); };
 
 real:					REAL {  char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								$$=makeNode(yytext,var,code,NULL); };
 
 int:					INT {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								$$=makeNode(yytext,var,code,NULL); };
 
 null:					TYPE_NULL  { char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-									 char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 									 $$=makeNode("NULL",var,code,NULL); };
 %%	
 

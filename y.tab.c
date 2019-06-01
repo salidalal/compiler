@@ -2007,7 +2007,7 @@ yyreduce:
   case 98:
 #line 311 "project.y" /* yacc.c:1646  */
     {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								(yyval)=makeNode("FALSE",var,code,NULL); }
 #line 2013 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2015,7 +2015,7 @@ yyreduce:
   case 99:
 #line 316 "project.y" /* yacc.c:1646  */
     {    char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-									char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 									(yyval)=makeNode(yytext,var,code,NULL); }
 #line 2021 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2023,7 +2023,7 @@ yyreduce:
   case 100:
 #line 320 "project.y" /* yacc.c:1646  */
     {  char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								(yyval)=makeNode(yytext,var,code,NULL); }
 #line 2029 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2031,7 +2031,7 @@ yyreduce:
   case 101:
 #line 324 "project.y" /* yacc.c:1646  */
     {  char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								(yyval)=makeNode(yytext,var,code,NULL); }
 #line 2037 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2039,7 +2039,7 @@ yyreduce:
   case 102:
 #line 328 "project.y" /* yacc.c:1646  */
     {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-								char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 								(yyval)=makeNode(yytext,var,code,NULL); }
 #line 2045 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2047,7 +2047,7 @@ yyreduce:
   case 103:
 #line 332 "project.y" /* yacc.c:1646  */
     { char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
-									 char * var = concat("",yytext);
+									 char * var = concat("T",stringInt(codeCounter-1));
 									 (yyval)=makeNode("NULL",var,code,NULL); }
 #line 2053 "y.tab.c" /* yacc.c:1646  */
     break;
