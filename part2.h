@@ -44,7 +44,7 @@ typedef struct Node{
 
 
 void addToTree(Node*,Node*);
-Node *makeNode(char *value,char*var,char*code, ...);
+Node *makeNode(char *value, ...);
 void printNode(Node *tree,int tab);
 void printTree(Node* tree);
 void fixRec(Node*temp,Node*n);

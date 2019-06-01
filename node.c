@@ -38,18 +38,19 @@ void printTree(Node* tree){
 }
 
 
-Node *makeNode( char *value,char*var,char*code, ...)
+Node *makeNode( char *value, ...)
 {
 	int i, count = 0;
     va_list countPointer, listPointer;
     Node *newNode = (Node *) malloc (sizeof(Node));
     Node *getArg = NULL;
 
+
+    //Initializing token
     newNode->value = concat("",value);
-    newNode->var = concat("",var);
-    newNode->code = concat("",code);
+
     //Counting number of arguments passed
-    va_start(countPointer, code);
+    va_start(countPointer, value);
     do{
         getArg = va_arg(countPointer, Node *);
         if(getArg != NULL)
@@ -59,7 +60,7 @@ Node *makeNode( char *value,char*var,char*code, ...)
     //Assigining children to array
     if(count != 0){
         newNode->size = count;
-        va_start(listPointer, code);
+        va_start(listPointer, value);
         newNode->sons = (Node**) malloc (count * sizeof(Node *));
         for(i = 0; i < count; i++){
             (newNode->sons)[i] = va_arg(listPointer, Node *);
@@ -174,7 +175,7 @@ void changeP (Node *parent){
 
 
 Node* fixFix (Node*temp){
-	Node* newNode = makeNode(temp->value,"","",NULL);
+	Node* newNode = makeNode(temp->value,NULL);
 	for(int i =temp->size -1; i>=0; i--)
 		addToTree(temp->sons[i],newNode);
 	return newNode;
