@@ -45,8 +45,6 @@ Node *makeNode( char *value,char*var,char*code, ...)
     Node *newNode = (Node *) malloc (sizeof(Node));
     Node *getArg = NULL;
 
-
-    //Initializing token
     newNode->value = concat("",value);
     newNode->var = concat("",var);
     newNode->code = concat("",code);
@@ -176,7 +174,7 @@ void changeP (Node *parent){
 
 
 Node* fixFix (Node*temp){
-	Node* newNode = makeNode(temp->value,NULL);
+	Node* newNode = makeNode(temp->value,"","",NULL);
 	for(int i =temp->size -1; i>=0; i--)
 		addToTree(temp->sons[i],newNode);
 	return newNode;

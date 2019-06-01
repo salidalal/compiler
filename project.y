@@ -6,13 +6,14 @@
 #include <malloc.h>
 #include "node.c"
 #include "symTbl.c"
-
+#include "part3.c"
 Node * tree;
 int size =0;
 void closeTree();
 int yylex(void);
 void yyerror(char*);
 extern char* yytext;
+char* T ="t";
 #define YYSTYPE struct Node *
 %} 
 /*
@@ -39,11 +40,13 @@ extern char* yytext;
 
 
 %left OR AND
+%left '{' '}' '(' ')' '['']'
 %left NOTEQ EQ ';' ','
 %left GT GTE LT LTE EQEQ NOT
-%left '{' '}' '(' ')' '['']'
 %left DEREF AMP
-%left MINUS PLUS MUL DIVIDE
+%left MINUS PLUS
+%left  MUL DIVIDE
+
 
 
 %start program
@@ -62,14 +65,14 @@ code_pros:			code_pros proc	{addToTree($2,tree);}
 				;
 
 func: 				FUNC proc_id '(' get_arg ')' RETURN continue_func { 
-													$$=makeNode("FUNC",$2,$4,$7->sons[0],$7->sons[1],NULL); }
+													$$=makeNode("FUNC","","",$2,$4,$7->sons[0],$7->sons[1],NULL); }
 				;
 
 
 
-proc: 				PROC proc_id '(' get_arg ')' continue_proc {$$=makeNode("PROC",$2,$4,$6,NULL);};
+proc: 				PROC proc_id '(' get_arg ')' continue_proc {$$=makeNode("PROC","","",$2,$4,$6,NULL);};
 
-main:				PROC MAIN '(' ')' continue_proc { $$=makeNode("Main",$5,NULL); };
+main:				PROC MAIN '(' ')' continue_proc { $$=makeNode("Main","","",$5,NULL); };
 
 
 
@@ -80,36 +83,36 @@ get_arg:			args_list {   $$=$1; }
 
 args_list:			no_args{ $1->value = "ARGS NONE"; $$ = $1; }
 				|	yes_args{       if(!strcmp("REC ARGS",$1->value))
-										{Node*temp = makeNode("",NULL); fixRec($1,temp);  $1=temp;}
+										{Node*temp = makeNode("","","",NULL); fixRec($1,temp);  $1=temp;}
 									else
-										{$1=makeNode("",$1,NULL);}	
+										{$1=makeNode("","","",$1,NULL);}	
 									$1->value="ARGS"; $$ = $1;	  									
 							}
 				;
 				
 			
-yes_args:			args ':' arg_type {Node*temp = makeNode("",NULL);fixRec($1,temp);  temp->value = $3->value; $$ = temp ; }							
-				|	yes_args ';' args ':' arg_type {    Node*temp = makeNode("",NULL);fixRec($3,temp);  temp->value =$5->value; $3 = makeNode($5->value,temp,NULL); 
-													$$ = makeNode("REC ARGS",temp,$1,NULL); }
+yes_args:			args ':' arg_type {Node*temp = makeNode("","","",NULL);fixRec($1,temp);  temp->value = $3->value; $$ = temp ; }							
+				|	yes_args ';' args ':' arg_type {    Node*temp = makeNode("","","",NULL);fixRec($3,temp);  temp->value =$5->value; $3 = makeNode($5->value,"","",temp,NULL); 
+													$$ = makeNode("REC ARGS","","",temp,$1,NULL); }
 				;
 
 args:				id {$$=$1;}
-				|	args ',' id { $$=makeNode("REC ARGS",$3,$1,NULL);}
+				|	args ',' id { $$=makeNode("REC ARGS","","",$3,$1,NULL);}
 				;
-no_args:			/*epsilon*/ {$$=makeNode("NONE",NULL);}
+no_args:			/*epsilon*/ {$$=makeNode("NONE","","",NULL);}
 				;
 
 
 call_args:			args_2 { if(!strcmp($1->value,"REC ARGS"))
-								{Node*temp = makeNode("",NULL);fixRec($1,temp); $$=temp;}
+								{Node*temp = makeNode("","","",NULL);fixRec($1,temp); $$=temp;}
 							else
-								{$$=makeNode("",$1,NULL);} }
+								{$$=makeNode("","","",$1,NULL);} }
 				|	no_args { $$ = $1; }
 				;
 
 
 args_2:				expression {$$=$1;}
-				|	args_2 ',' expression { $$=makeNode("REC ARGS",$3,$1,NULL);}
+				|	args_2 ',' expression { $$=makeNode("REC ARGS","","",$3,$1,NULL);}
 				;
 
 arg_type: 			type {$$=$1;}
@@ -119,21 +122,21 @@ arg_type: 			type {$$=$1;}
 
 //==================proc and func body===============================
 
-continue_func:		return_va '{' body  '}' {  $$ = makeNode("BLOCK", makeNode("RET",$1,NULL),$3,NULL);}
+continue_func:		type '{' body  '}' {  $$ = makeNode("BLOCK", "","", makeNode("RET","","",$1,NULL),$3,NULL);}
 				;
 
 proc_id: 			id {$$=$1;}
 				;
 
 
-continue_proc:		'{' body '}' { if(!$2){$2=makeNode("",NULL);} $2->value="BLOCK"; $$=$2;}
+continue_proc:		'{' body '}' { if(!$2){$2=makeNode("","","",NULL);} $2->value="BLOCK"; $$=$2;}
 				;
 
-body:				statmentss {Node*temp = makeNode("BODY",NULL);fixRec($1,temp); $$=temp;}
+body:				statmentss {Node*temp = makeNode("BODY","","",NULL);fixRec($1,temp); $$=temp;}
 				|	/**/ { $$ = NULL;}
 				;
 
-
+/*
 return_va:			TYPE_INT {$$=makeNode("INT", NULL);}
 				|	TYPE_CHAR {$$=makeNode("CHAR", NULL);}
 				|	TYPE_BOOL  {$$=makeNode("BOOL", NULL);}
@@ -141,10 +144,11 @@ return_va:			TYPE_INT {$$=makeNode("INT", NULL);}
 				|	INT_PTR  {$$=makeNode("INT*", NULL);}
 				|	CHAR_PTR  {$$=makeNode("CHAR*", NULL);}
 				|	REAL_PTR {$$=makeNode("REAL*", NULL);}
-				| 	TYPE_STRING'['INT']' { $$= makeNode(concat("STRING[",concat((char*)$3,"]")) ,NULL);}
+				| 	TYPE_STRING'['INT']' { $$= makeNode(concat("STRING[",concat((char*)$3,"]")) ,"","",NULL);}
 				;
+				*/
 
-the_ret:			RETURN expression ';' {$$=makeNode("RETURN",$2,NULL); }
+the_ret:			RETURN expression ';' {$$=makeNode("RETURN","","",$2,NULL); }
 				;
 
 
@@ -161,8 +165,7 @@ statment:				call semico {$$=$1;}
 														$1->sons[0]->size= $1->sons[1]->size;  
 														$1->sons[1]=NULL; $1->size=1; $$=$1; }
 
-					|	'{' statmentss '}'	{ Node*temp = makeNode("BLOCK",NULL);fixRec($2,temp);   $$=temp;}
-//					| 	/*epsilon*/ { $$ = makeNode("EMPTY",NULL);}
+					|	'{' statmentss '}'	{ Node*temp = makeNode("BLOCK","","",NULL);fixRec($2,temp);   $$=temp;}
 					|	the_ret {$$=$1;}
 					|	func {$$=$1;}
 					|	proc {$$ =$1;}
@@ -172,7 +175,7 @@ semico:					';'
 					;					
 
 
-statmentss:				statmentss statment {$$=makeNode("REC ARGS",$2,$1, NULL);}
+statmentss:				statmentss statment {$$=makeNode("REC ARGS","","",$2,$1, NULL);}
 					|	statment	{ $$=$1;}
 					;
 
@@ -182,39 +185,39 @@ statmentss:				statmentss statment {$$=makeNode("REC ARGS",$2,$1, NULL);}
 
 
 
-var_decls:				VAR ids ':' type ';' {Node*temp = makeNode("LALA1",NULL);fixRec($2,temp); $$=makeNode("LALA2",$4,temp,NULL);}
+var_decls:				VAR ids ':' type ';' {Node*temp = makeNode("LALA1","","",NULL);fixRec($2,temp); $$=makeNode("LALA2","","",$4,temp,NULL);}
 					;
 
-ids: 					ids ',' id {$$=makeNode("REC ARGS",$3,$1,NULL);}
+ids: 					ids ',' id {$$=makeNode("REC ARGS","","",$3,$1,NULL);}
 					|	id {$$=$1;}
 					;
 
-initign_statment:		lhs EQ expression semico {$$=makeNode("=",$1,$3,NULL); }
-					|	DEREF lhs EQ expression semico {$$=makeNode("=",makeNode("^",$2,NULL),$4,NULL); }
+initign_statment:		lhs EQ expression semico {$$=makeNode("=","","",$1,$3,NULL); }
+					|	DEREF lhs EQ expression semico {$$=makeNode("=","","",makeNode("^","","",$2,NULL),$4,NULL); }
 
 					;
 
 					
 
-if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IFELSE",$3,$5,$6,NULL);}
-																		else {$$ = makeNode("IF",$3,$5,NULL); }   }
+if_statment:			IF '(' expression ')' statment else_statment { if($6){$$ = makeNode("IFELSE","","",$3,$5,$6,NULL);}
+																		else {$$ = makeNode("IF","","",$3,$5,NULL); }   }
 					;
 
 else_statment:			ELSE statment { $$= $2; }
 					|	/*epsilon*/{$$=NULL;};
 					;
 
-while_statment:			WHILE '(' expression ')' block {$$=makeNode("WHILE",$3,$5,NULL);}
+while_statment:			WHILE '(' expression ')' block {$$=makeNode("WHILE","","",$3,$5,NULL);}
 					;
 
-for_statment:			FOR '(' for_cond ')' block { $$=makeNode("FOR",$3->sons[0],$3->sons[1],$3->sons[2],$5,NULL);}
+for_statment:			FOR '(' for_cond ')' block { $$=makeNode("FOR","","",$3->sons[0],$3->sons[1],$3->sons[2],$5,NULL);}
 					;
 
-for_cond:				init semico expression semico init {$$=makeNode("",$1,$3,$5,NULL);}
+for_cond:				init semico expression semico init {$$=makeNode("","","",$1,$3,$5,NULL);}
 					;
 
-init:					lhs EQ expression {$$=makeNode("=",$1,$3,NULL); }
-					|	DEREF lhs EQ expression {$$=makeNode("=",makeNode("^",$2,NULL),$4,NULL); }
+init:					lhs EQ expression {$$=makeNode("=","","",$1,$3,NULL); }
+					|	DEREF lhs EQ expression {$$=makeNode("=","","",makeNode("^","","",$2,NULL),$4,NULL); }
 					;
 
 
@@ -223,46 +226,70 @@ block: 					statment {$$=$1;}
 
 	
 
-expression:				expression PLUS expression {$$=makeNode("+",$1,$3,NULL);}
-					|	expression MINUS expression {$$=makeNode("-",$1,$3,NULL);}
-					|	expression MUL expression {$$=makeNode("*",$1,$3,NULL);}
-					|	expression DIVIDE expression {$$=makeNode("/",$1,$3,NULL);}
-					|	expression EQEQ expression {$$=makeNode("==",$1,$3,NULL);}
-					|	expression GT expression {$$=makeNode(">",$1,$3,NULL);}
-					|	expression GTE expression {$$=makeNode(">=",$1,$3,NULL);}
-					|	expression LT expression {$$=makeNode("<",$1,$3,NULL);}
-					|	expression LTE expression {$$=makeNode("<=",$1,$3,NULL);}
-					|	NOT expression {$$=makeNode("!",$2,NULL);}
-					|	expression NOTEQ expression {$$=makeNode("!=",$1,$3,NULL);}
-					|	expression OR expression {$$=makeNode("||",$1,$3,NULL);}	
-					|	expression AND expression {$$=makeNode("&&",$1,$3,NULL);}	
+expression:				expression PLUS expression {$$=makeNode("+","","",$1,$3,NULL);}
+					|	expression MINUS expression {$$=makeNode("-","","",$1,$3,NULL);}
+					|	expression MUL expression {$$=makeNode("*","","",$1,$3,NULL);}
+					|	expression DIVIDE expression {$$=makeNode("/","","",$1,$3,NULL);}
+					|	expression EQEQ expression {$$=makeNode("==","","",$1,$3,NULL);}
+					|	expression GT expression {$$=makeNode(">","","",$1,$3,NULL);}
+					|	expression GTE expression {$$=makeNode(">=","","",$1,$3,NULL);}
+					|	expression LT expression {$$=makeNode("<","","",$1,$3,NULL);}
+					|	expression LTE expression {$$=makeNode("<=","","",$1,$3,NULL);}
+					|	NOT expression {$$=makeNode("!","","",$2,NULL);}
+					|	expression NOTEQ expression {$$=makeNode("!=","","",$1,$3,NULL);}
+					|	expression OR expression {$$=makeNode("||","","",$1,$3,NULL);}	
+					|	expression AND expression {$$=makeNode("&&","","",$1,$3,NULL);}	
 					|	'(' expression ')' {$$=$2;}
 					|	value {$$=$1;}
-					|	DEREF expression { $$=makeNode("^",$2,NULL); }
-					| 	AMP expression { $$=makeNode("&",$2,NULL);}; 
+					|	DEREF expression { $$=makeNode("^","","",$2,NULL); }
+					| 	AMP expression { $$=makeNode("&","","",$2,NULL);}; 
 					;
 
 
 lhs :					id {$$ = $1; }
-					|	id '[' expression ']' {$$ = makeNode("ARR",makeNode((char*)$1->value,NULL),$3,NULL);}
+					|	id '[' expression ']' {$$ = makeNode("ARR","","",makeNode((char*)$1->value,"","",NULL),$3,NULL);}
 					;
 
 
 value:					lhs | boolean | string | char | real | int | len | call  | null
 					;
 
-type:					TYPE_INT {$$=makeNode("INT",NULL);}
-					|	TYPE_BOOL {$$=makeNode("BOOL",NULL);}
-					|	TYPE_CHAR {$$=makeNode("CHAR",NULL);}
-					|	TYPE_REAL {$$=makeNode("REAL",NULL);}
-					|	TYPE_STRING '['INT']' {$$=makeNode( concat("STRING",concat("[",concat((char*)$3,"]"))) ,NULL);}
-					|	INT_PTR {$$=makeNode("INT*",NULL);}
-					|	CHAR_PTR {$$=makeNode("CHAR*",NULL);}
-					|	REAL_PTR {$$=makeNode("REAL*",NULL);}
+type:					TYPE_INT {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									 char * var = concat("",yytext);
+									 $$=makeNode("INT",var,code,NULL); }
+
+					|	TYPE_BOOL { char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode("BOOL",var,code,NULL); }
+
+					|	TYPE_CHAR { char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode("CHAR",var,code,NULL); }
+
+					|	TYPE_REAL { char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode("REAL",var,code,NULL); }
+
+					|	TYPE_STRING '['INT']' {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",concat("STRING",concat("[",concat((char*)$3,"]"))))));
+													char * var = concat("",yytext);
+													$$=makeNode(concat("STRING",concat("[",concat((char*)$3,"]"))),var,code,NULL); }
+
+					|	INT_PTR 	{ char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode("INT*",var,code,NULL); }
+
+					|	CHAR_PTR 	{ char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode("CHAR*",var,code,NULL); }
+
+					|	REAL_PTR 	{ char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode("REAL*",var,code,NULL); }
 					;
 
-id:						ID {$$=makeNode((char*)$1,NULL) ; }
-
+id:						ID {   char * code = concat((char*)T,concat(stringInt(codeCounter),concat(" = ",yytext)));
+								char * var = concat("",yytext);
+								$$=makeNode(yytext,var,code,NULL); };
 					
 					;
 
@@ -270,27 +297,46 @@ id:						ID {$$=makeNode((char*)$1,NULL) ; }
 				
 
 
-call:					id '(' call_args ')'  { $1->sons = $3->sons; $1->size = $3->size; $$ = makeNode("CALL",$1,NULL); }
+call:					id '(' call_args ')'  { $1->sons = $3->sons; $1->size = $3->size; $$ = makeNode("CALL","","",$1,NULL); }
 					;
 
-len:					'|' id '|' { $$=makeNode("LEN",$2,NULL); }
-					|	'|' string '|' { $$=makeNode("STRING LEN",$2,NULL); }
+len:					'|' id '|' { $$=makeNode("LEN","","",$2,NULL); }
+					|	'|' string '|' { $$=makeNode("STRING LEN","","",$2,NULL); }
 					;
 
-boolean:				BOOL_TRUE {$$=makeNode("TRUE",NULL);}
-					|	BOOL_FALSE {$$=makeNode("FALSE",NULL);}
+boolean:				BOOL_TRUE {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+								char * var = concat("",yytext);
+								$$=makeNode("TRUE",var,code,NULL); };
+
+					|	BOOL_FALSE {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+								char * var = concat("",yytext);
+								$$=makeNode("FALSE",var,code,NULL); };
 					;
 
-string:					STRING {$$=makeNode(yytext,NULL);};
-char:					CHAR {$$=makeNode(yytext,NULL);};
-real:					REAL {$$=makeNode(yytext,NULL);};
-int:					INT {$$=makeNode(yytext,NULL); };
-null:					TYPE_NULL  {$$=makeNode("NULL",NULL); };
+string:					STRING {    char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									char * var = concat("",yytext);
+									$$=makeNode(yytext,var,code,NULL); };
+
+char:					CHAR {  char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+								char * var = concat("",yytext);
+								$$=makeNode(yytext,var,code,NULL); };
+
+real:					REAL {  char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+								char * var = concat("",yytext);
+								$$=makeNode(yytext,var,code,NULL); };
+
+int:					INT {   char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+								char * var = concat("",yytext);
+								$$=makeNode(yytext,var,code,NULL); };
+
+null:					TYPE_NULL  { char * code = concat(T,concat(stringInt(codeCounter++),concat(" = ",yytext)));
+									 char * var = concat("",yytext);
+									 $$=makeNode("NULL",var,code,NULL); };
 %%	
 
 #include "lex.yy.c"
 int main(){
-	tree= makeNode("CODE", NULL);
+	tree= makeNode("CODE","","", NULL);
 	return yyparse();
 }
 

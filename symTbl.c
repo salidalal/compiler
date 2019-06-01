@@ -482,19 +482,6 @@ void isBool(Node *node){
 }
 
 
-char * stringInt(int num){
-    int size = 0;
-    char buffer[1000], *number;
-    sprintf(buffer,"%d",num);
-
-    for(int i=0; buffer[i]; i++)
-        size++;
-    number = (char*)malloc (sizeof(char)*(size+1));
-    strcat(number,buffer);
-    return number;
-    
-}
-
 
 int isEXP(Node* node){
     char* val = node->value;

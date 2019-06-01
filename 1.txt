@@ -36,7 +36,7 @@ proc fee1(i, j, k, x : int)
 	i = l + l;
 	/% i = j + 1; %/
 	/% i = k + 1; %/
-	if ((k == '*') || (x != false) && (l + m < i)){
+	if ( (k == '*') || (x != false) && (l + m < i) ){
 		x = l < m;
 	}
         return x;

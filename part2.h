@@ -13,6 +13,21 @@ char * concat (const char* s1, const char* s2) {
 }
 
 
+
+char * stringInt(int num){
+    int size = 0;
+    char buffer[1000], *number;
+    sprintf(buffer,"%d",num);
+
+    for(int i=0; buffer[i]; i++)
+        size++;
+    number = (char*)malloc (sizeof(char)*(size+1));
+    strcat(number,buffer);
+    return number;
+    
+}
+
+
 //NODE
 typedef struct Node{
 	struct Node **sons;
@@ -29,7 +44,7 @@ typedef struct Node{
 
 
 void addToTree(Node*,Node*);
-Node *makeNode(char *value, ...);
+Node *makeNode(char *value,char*var,char*code, ...);
 void printNode(Node *tree,int tab);
 void printTree(Node* tree);
 void fixRec(Node*temp,Node*n);
@@ -103,7 +118,6 @@ void checkCall(Node *);
 void checkMain(Node *);
 void checkReturn(Node *);
 void isBool(Node *);
-char * stringInt(int );
 int stringSize(Node *);
 Node * getMethod(Node *);
 void initScopes(Node *); 

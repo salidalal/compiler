@@ -1498,10 +1498,10 @@ yyreduce:
         checkSemantics(pTree, 1);
         errorSummary();
         // if(numOfErrors == 0)
-            //print(pTree);
-        start3AC(pTree);
-         printCode(pTree);
-         printAllCodes(pTree);
+            print(pTree);
+        //start3AC(pTree);
+         //printCode(pTree);
+         //printAllCodes(pTree);
         
     }
 #line 1508 "y.tab.c" /* yacc.c:1646  */

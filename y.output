@@ -1,4 +1,4 @@
-State 189 conflicts: 1 shift/reduce
+State 179 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -41,7 +41,7 @@ Grammar
 
    22 arg_type: type
 
-   23 continue_func: return_va '{' body '}'
+   23 continue_func: type '{' body '}'
 
    24 proc_id: id
 
@@ -50,173 +50,164 @@ Grammar
    26 body: statmentss
    27     | %empty
 
-   28 return_va: TYPE_INT
-   29          | TYPE_CHAR
-   30          | TYPE_BOOL
-   31          | TYPE_REAL
-   32          | INT_PTR
-   33          | CHAR_PTR
-   34          | REAL_PTR
-   35          | TYPE_STRING '[' INT ']'
+   28 the_ret: RETURN expression ';'
 
-   36 the_ret: RETURN expression ';'
+   29 statment: call semico
+   30         | if_statment
+   31         | for_statment
+   32         | while_statment
+   33         | initign_statment
+   34         | var_decls
+   35         | '{' statmentss '}'
+   36         | the_ret
+   37         | func
+   38         | proc
 
-   37 statment: call semico
-   38         | if_statment
-   39         | for_statment
-   40         | while_statment
-   41         | initign_statment
-   42         | var_decls
-   43         | '{' statmentss '}'
-   44         | the_ret
-   45         | func
-   46         | proc
+   39 semico: ';'
 
-   47 semico: ';'
+   40 statmentss: statmentss statment
+   41           | statment
 
-   48 statmentss: statmentss statment
-   49           | statment
+   42 var_decls: VAR ids ':' type ';'
 
-   50 var_decls: VAR ids ':' type ';'
+   43 ids: ids ',' id
+   44    | id
 
-   51 ids: ids ',' id
-   52    | id
+   45 initign_statment: lhs EQ expression semico
+   46                 | DEREF lhs EQ expression semico
 
-   53 initign_statment: lhs EQ expression semico
-   54                 | DEREF lhs EQ expression semico
+   47 if_statment: IF '(' expression ')' statment else_statment
 
-   55 if_statment: IF '(' expression ')' statment else_statment
+   48 else_statment: ELSE statment
+   49              | %empty
 
-   56 else_statment: ELSE statment
-   57              | %empty
+   50 while_statment: WHILE '(' expression ')' block
 
-   58 while_statment: WHILE '(' expression ')' block
+   51 for_statment: FOR '(' for_cond ')' block
 
-   59 for_statment: FOR '(' for_cond ')' block
+   52 for_cond: init semico expression semico init
 
-   60 for_cond: init semico expression semico init
+   53 init: lhs EQ expression
+   54     | DEREF lhs EQ expression
 
-   61 init: lhs EQ expression
-   62     | DEREF lhs EQ expression
+   55 block: statment
 
-   63 block: statment
+   56 expression: expression PLUS expression
+   57           | expression MINUS expression
+   58           | expression MUL expression
+   59           | expression DIVIDE expression
+   60           | expression EQEQ expression
+   61           | expression GT expression
+   62           | expression GTE expression
+   63           | expression LT expression
+   64           | expression LTE expression
+   65           | NOT expression
+   66           | expression NOTEQ expression
+   67           | expression OR expression
+   68           | expression AND expression
+   69           | '(' expression ')'
+   70           | value
+   71           | DEREF expression
+   72           | AMP expression
 
-   64 expression: expression PLUS expression
-   65           | expression MINUS expression
-   66           | expression MUL expression
-   67           | expression DIVIDE expression
-   68           | expression EQEQ expression
-   69           | expression GT expression
-   70           | expression GTE expression
-   71           | expression LT expression
-   72           | expression LTE expression
-   73           | NOT expression
-   74           | expression NOTEQ expression
-   75           | expression OR expression
-   76           | expression AND expression
-   77           | '(' expression ')'
-   78           | value
-   79           | DEREF expression
-   80           | AMP expression
+   73 lhs: id
+   74    | id '[' expression ']'
 
-   81 lhs: id
-   82    | id '[' expression ']'
+   75 value: lhs
+   76      | boolean
+   77      | string
+   78      | char
+   79      | real
+   80      | int
+   81      | len
+   82      | call
+   83      | null
 
-   83 value: lhs
-   84      | boolean
-   85      | string
-   86      | char
-   87      | real
-   88      | int
-   89      | len
-   90      | call
-   91      | null
+   84 type: TYPE_INT
+   85     | TYPE_BOOL
+   86     | TYPE_CHAR
+   87     | TYPE_REAL
+   88     | TYPE_STRING '[' INT ']'
+   89     | INT_PTR
+   90     | CHAR_PTR
+   91     | REAL_PTR
 
-   92 type: TYPE_INT
-   93     | TYPE_BOOL
-   94     | TYPE_CHAR
-   95     | TYPE_REAL
-   96     | TYPE_STRING '[' INT ']'
-   97     | INT_PTR
-   98     | CHAR_PTR
-   99     | REAL_PTR
+   92 id: ID
 
-  100 id: ID
+   93 call: id '(' call_args ')'
 
-  101 call: id '(' call_args ')'
+   94 len: '|' id '|'
+   95    | '|' string '|'
 
-  102 len: '|' id '|'
-  103    | '|' string '|'
+   96 boolean: BOOL_TRUE
+   97        | BOOL_FALSE
 
-  104 boolean: BOOL_TRUE
-  105        | BOOL_FALSE
+   98 string: STRING
 
-  106 string: STRING
+   99 char: CHAR
 
-  107 char: CHAR
+  100 real: REAL
 
-  108 real: REAL
+  101 int: INT
 
-  109 int: INT
-
-  110 null: TYPE_NULL
+  102 null: TYPE_NULL
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'(' (40) 7 8 9 55 58 59 77 101
-')' (41) 7 8 9 55 58 59 77 101
-',' (44) 16 21 51
-':' (58) 13 14 50
-';' (59) 14 36 47 50
-'[' (91) 35 82 96
-']' (93) 35 82 96
-'{' (123) 23 25 43
-'|' (124) 102 103
-'}' (125) 23 25 43
+'(' (40) 7 8 9 47 50 51 69 93
+')' (41) 7 8 9 47 50 51 69 93
+',' (44) 16 21 43
+':' (58) 13 14 42
+';' (59) 14 28 39 42
+'[' (91) 74 88
+']' (93) 74 88
+'{' (123) 23 25 35
+'|' (124) 94 95
+'}' (125) 23 25 35
 error (256)
-TYPE_BOOL (258) 30 93
-TYPE_CHAR (259) 29 94
-TYPE_INT (260) 28 92
-TYPE_REAL (261) 31 95
-TYPE_STRING (262) 35 96
-INT_PTR (263) 32 97
-CHAR_PTR (264) 33 98
-REAL_PTR (265) 34 99
-IF (266) 55
-ELSE (267) 56
-WHILE (268) 58
-FOR (269) 59
+TYPE_BOOL (258) 85
+TYPE_CHAR (259) 86
+TYPE_INT (260) 84
+TYPE_REAL (261) 87
+TYPE_STRING (262) 88
+INT_PTR (263) 89
+CHAR_PTR (264) 90
+REAL_PTR (265) 91
+IF (266) 47
+ELSE (267) 48
+WHILE (268) 50
+FOR (269) 51
 PROC (270) 8 9
 FUNC (271) 7
-VAR (272) 50
+VAR (272) 42
 MAIN (273) 9
-RETURN (274) 7 36
-TYPE_NULL (275) 110
-BOOL_TRUE (276) 104
-BOOL_FALSE (277) 105
-REAL (278) 108
-ID (279) 100
-INT (280) 35 96 109
-CHAR (281) 107
-STRING (282) 106
-AND (283) 76
-DIVIDE (284) 67
-EQ (285) 53 54 61 62
-EQEQ (286) 68
-GT (287) 69
-GTE (288) 70
-LT (289) 71
-LTE (290) 72
-MINUS (291) 65
-NOT (292) 73
-NOTEQ (293) 74
-OR (294) 75
-PLUS (295) 64
-MUL (296) 66
-AMP (297) 80
-DEREF (298) 54 62 79
+RETURN (274) 7 28
+TYPE_NULL (275) 102
+BOOL_TRUE (276) 96
+BOOL_FALSE (277) 97
+REAL (278) 100
+ID (279) 92
+INT (280) 88 101
+CHAR (281) 99
+STRING (282) 98
+AND (283) 68
+DIVIDE (284) 59
+EQ (285) 45 46 53 54
+EQEQ (286) 60
+GT (287) 61
+GTE (288) 62
+LT (289) 63
+LTE (290) 64
+MINUS (291) 57
+NOT (292) 65
+NOTEQ (293) 66
+OR (294) 67
+PLUS (295) 56
+MUL (296) 58
+AMP (297) 72
+DEREF (298) 46 54 71
 
 
 Nonterminals, with rules where they appear
@@ -230,9 +221,9 @@ code (56)
 code_pros (57)
     on left: 3 4 5 6, on right: 2 3 4 5
 func (58)
-    on left: 7, on right: 4 45
+    on left: 7, on right: 4 37
 proc (59)
-    on left: 8, on right: 3 46
+    on left: 8, on right: 3 38
 main (60)
     on left: 9, on right: 5
 get_arg (61)
@@ -246,7 +237,7 @@ args (64)
 no_args (65)
     on left: 17, on right: 11 19
 call_args (66)
-    on left: 18 19, on right: 101
+    on left: 18 19, on right: 93
 args_2 (67)
     on left: 20 21, on right: 18 21
 arg_type (68)
@@ -259,64 +250,62 @@ continue_proc (71)
     on left: 25, on right: 8 9
 body (72)
     on left: 26 27, on right: 23 25
-return_va (73)
-    on left: 28 29 30 31 32 33 34 35, on right: 23
-the_ret (74)
-    on left: 36, on right: 44
-statment (75)
-    on left: 37 38 39 40 41 42 43 44 45 46, on right: 48 49 55 56 63
-semico (76)
-    on left: 47, on right: 37 53 54 60
-statmentss (77)
-    on left: 48 49, on right: 26 43 48
-var_decls (78)
-    on left: 50, on right: 42
-ids (79)
-    on left: 51 52, on right: 50 51
-initign_statment (80)
-    on left: 53 54, on right: 41
-if_statment (81)
-    on left: 55, on right: 38
-else_statment (82)
-    on left: 56 57, on right: 55
-while_statment (83)
-    on left: 58, on right: 40
-for_statment (84)
-    on left: 59, on right: 39
-for_cond (85)
-    on left: 60, on right: 59
-init (86)
-    on left: 61 62, on right: 60
-block (87)
-    on left: 63, on right: 58 59
-expression (88)
-    on left: 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80, on right:
-    20 21 36 53 54 55 58 60 61 62 64 65 66 67 68 69 70 71 72 73 74
-    75 76 77 79 80 82
-lhs (89)
-    on left: 81 82, on right: 53 54 61 62 83
-value (90)
-    on left: 83 84 85 86 87 88 89 90 91, on right: 78
-type (91)
-    on left: 92 93 94 95 96 97 98 99, on right: 22 50
-id (92)
-    on left: 100, on right: 15 16 24 51 52 81 82 101 102
-call (93)
-    on left: 101, on right: 37 90
-len (94)
-    on left: 102 103, on right: 89
-boolean (95)
-    on left: 104 105, on right: 84
-string (96)
-    on left: 106, on right: 85 103
-char (97)
-    on left: 107, on right: 86
-real (98)
-    on left: 108, on right: 87
-int (99)
-    on left: 109, on right: 88
-null (100)
-    on left: 110, on right: 91
+the_ret (73)
+    on left: 28, on right: 36
+statment (74)
+    on left: 29 30 31 32 33 34 35 36 37 38, on right: 40 41 47 48 55
+semico (75)
+    on left: 39, on right: 29 45 46 52
+statmentss (76)
+    on left: 40 41, on right: 26 35 40
+var_decls (77)
+    on left: 42, on right: 34
+ids (78)
+    on left: 43 44, on right: 42 43
+initign_statment (79)
+    on left: 45 46, on right: 33
+if_statment (80)
+    on left: 47, on right: 30
+else_statment (81)
+    on left: 48 49, on right: 47
+while_statment (82)
+    on left: 50, on right: 32
+for_statment (83)
+    on left: 51, on right: 31
+for_cond (84)
+    on left: 52, on right: 51
+init (85)
+    on left: 53 54, on right: 52
+block (86)
+    on left: 55, on right: 50 51
+expression (87)
+    on left: 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72, on right:
+    20 21 28 45 46 47 50 52 53 54 56 57 58 59 60 61 62 63 64 65 66
+    67 68 69 71 72 74
+lhs (88)
+    on left: 73 74, on right: 45 46 53 54 75
+value (89)
+    on left: 75 76 77 78 79 80 81 82 83, on right: 70
+type (90)
+    on left: 84 85 86 87 88 89 90 91, on right: 22 23 42
+id (91)
+    on left: 92, on right: 15 16 24 43 44 73 74 93 94
+call (92)
+    on left: 93, on right: 29 82
+len (93)
+    on left: 94 95, on right: 81
+boolean (94)
+    on left: 96 97, on right: 76
+string (95)
+    on left: 98, on right: 77 95
+char (96)
+    on left: 99, on right: 78
+real (97)
+    on left: 100, on right: 79
+int (98)
+    on left: 101, on right: 80
+null (99)
+    on left: 102, on right: 83
 
 
 State 0
@@ -420,9 +409,9 @@ State 10
 
 State 11
 
-  100 id: ID .
+   92 id: ID .
 
-    $default  reduce using rule 100 (id)
+    $default  reduce using rule 92 (id)
 
 
 State 12
@@ -642,21 +631,21 @@ State 32
 
 State 33
 
-   55 if_statment: IF . '(' expression ')' statment else_statment
+   47 if_statment: IF . '(' expression ')' statment else_statment
 
     '('  shift, and go to state 69
 
 
 State 34
 
-   58 while_statment: WHILE . '(' expression ')' block
+   50 while_statment: WHILE . '(' expression ')' block
 
     '('  shift, and go to state 70
 
 
 State 35
 
-   59 for_statment: FOR . '(' for_cond ')' block
+   51 for_statment: FOR . '(' for_cond ')' block
 
     '('  shift, and go to state 71
 
@@ -673,7 +662,7 @@ State 36
 
 State 37
 
-   50 var_decls: VAR . ids ':' type ';'
+   42 var_decls: VAR . ids ':' type ';'
 
     ID  shift, and go to state 11
 
@@ -683,7 +672,7 @@ State 37
 
 State 38
 
-   36 the_ret: RETURN . expression ';'
+   28 the_ret: RETURN . expression ';'
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -715,7 +704,7 @@ State 38
 
 State 39
 
-   54 initign_statment: DEREF . lhs EQ expression semico
+   46 initign_statment: DEREF . lhs EQ expression semico
 
     ID  shift, and go to state 11
 
@@ -725,7 +714,7 @@ State 39
 
 State 40
 
-   43 statment: '{' . statmentss '}'
+   35 statment: '{' . statmentss '}'
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -755,16 +744,16 @@ State 40
 
 State 41
 
-   45 statment: func .
+   37 statment: func .
 
-    $default  reduce using rule 45 (statment)
+    $default  reduce using rule 37 (statment)
 
 
 State 42
 
-   46 statment: proc .
+   38 statment: proc .
 
-    $default  reduce using rule 46 (statment)
+    $default  reduce using rule 38 (statment)
 
 
 State 43
@@ -776,22 +765,22 @@ State 43
 
 State 44
 
-   44 statment: the_ret .
+   36 statment: the_ret .
 
-    $default  reduce using rule 44 (statment)
+    $default  reduce using rule 36 (statment)
 
 
 State 45
 
-   49 statmentss: statment .
+   41 statmentss: statment .
 
-    $default  reduce using rule 49 (statmentss)
+    $default  reduce using rule 41 (statmentss)
 
 
 State 46
 
    26 body: statmentss .
-   48 statmentss: statmentss . statment
+   40 statmentss: statmentss . statment
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -822,61 +811,61 @@ State 46
 
 State 47
 
-   42 statment: var_decls .
+   34 statment: var_decls .
 
-    $default  reduce using rule 42 (statment)
+    $default  reduce using rule 34 (statment)
 
 
 State 48
 
-   41 statment: initign_statment .
+   33 statment: initign_statment .
 
-    $default  reduce using rule 41 (statment)
+    $default  reduce using rule 33 (statment)
 
 
 State 49
 
-   38 statment: if_statment .
+   30 statment: if_statment .
 
-    $default  reduce using rule 38 (statment)
+    $default  reduce using rule 30 (statment)
 
 
 State 50
 
-   40 statment: while_statment .
+   32 statment: while_statment .
 
-    $default  reduce using rule 40 (statment)
+    $default  reduce using rule 32 (statment)
 
 
 State 51
 
-   39 statment: for_statment .
+   31 statment: for_statment .
 
-    $default  reduce using rule 39 (statment)
+    $default  reduce using rule 31 (statment)
 
 
 State 52
 
-   53 initign_statment: lhs . EQ expression semico
+   45 initign_statment: lhs . EQ expression semico
 
     EQ  shift, and go to state 102
 
 
 State 53
 
-   81 lhs: id .
-   82    | id . '[' expression ']'
-  101 call: id . '(' call_args ')'
+   73 lhs: id .
+   74    | id . '[' expression ']'
+   93 call: id . '(' call_args ')'
 
     '('  shift, and go to state 103
     '['  shift, and go to state 104
 
-    $default  reduce using rule 81 (lhs)
+    $default  reduce using rule 73 (lhs)
 
 
 State 54
 
-   37 statment: call . semico
+   29 statment: call . semico
 
     ';'  shift, and go to state 105
 
@@ -901,58 +890,58 @@ State 56
 
 State 57
 
-   93 type: TYPE_BOOL .
+   85 type: TYPE_BOOL .
 
-    $default  reduce using rule 93 (type)
+    $default  reduce using rule 85 (type)
 
 
 State 58
 
-   94 type: TYPE_CHAR .
+   86 type: TYPE_CHAR .
 
-    $default  reduce using rule 94 (type)
+    $default  reduce using rule 86 (type)
 
 
 State 59
 
-   92 type: TYPE_INT .
+   84 type: TYPE_INT .
 
-    $default  reduce using rule 92 (type)
+    $default  reduce using rule 84 (type)
 
 
 State 60
 
-   95 type: TYPE_REAL .
+   87 type: TYPE_REAL .
 
-    $default  reduce using rule 95 (type)
+    $default  reduce using rule 87 (type)
 
 
 State 61
 
-   96 type: TYPE_STRING . '[' INT ']'
+   88 type: TYPE_STRING . '[' INT ']'
 
     '['  shift, and go to state 108
 
 
 State 62
 
-   97 type: INT_PTR .
+   89 type: INT_PTR .
 
-    $default  reduce using rule 97 (type)
+    $default  reduce using rule 89 (type)
 
 
 State 63
 
-   98 type: CHAR_PTR .
+   90 type: CHAR_PTR .
 
-    $default  reduce using rule 98 (type)
+    $default  reduce using rule 90 (type)
 
 
 State 64
 
-   99 type: REAL_PTR .
+   91 type: REAL_PTR .
 
-    $default  reduce using rule 99 (type)
+    $default  reduce using rule 91 (type)
 
 
 State 65
@@ -980,22 +969,164 @@ State 68
 
     7 func: FUNC proc_id '(' get_arg ')' RETURN . continue_func
 
-    TYPE_BOOL    shift, and go to state 109
-    TYPE_CHAR    shift, and go to state 110
-    TYPE_INT     shift, and go to state 111
-    TYPE_REAL    shift, and go to state 112
-    TYPE_STRING  shift, and go to state 113
-    INT_PTR      shift, and go to state 114
-    CHAR_PTR     shift, and go to state 115
-    REAL_PTR     shift, and go to state 116
+    TYPE_BOOL    shift, and go to state 57
+    TYPE_CHAR    shift, and go to state 58
+    TYPE_INT     shift, and go to state 59
+    TYPE_REAL    shift, and go to state 60
+    TYPE_STRING  shift, and go to state 61
+    INT_PTR      shift, and go to state 62
+    CHAR_PTR     shift, and go to state 63
+    REAL_PTR     shift, and go to state 64
 
-    continue_func  go to state 117
-    return_va      go to state 118
+    continue_func  go to state 109
+    type           go to state 110
 
 
 State 69
 
-   55 if_statment: IF '(' . expression ')' statment else_statment
+   47 if_statment: IF '(' . expression ')' statment else_statment
+
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 111
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
+
+
+State 70
+
+   50 while_statment: WHILE '(' . expression ')' block
+
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 112
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
+
+
+State 71
+
+   51 for_statment: FOR '(' . for_cond ')' block
+
+    ID     shift, and go to state 11
+    DEREF  shift, and go to state 113
+
+    for_cond  go to state 114
+    init      go to state 115
+    lhs       go to state 116
+    id        go to state 98
+
+
+State 72
+
+   42 var_decls: VAR ids . ':' type ';'
+   43 ids: ids . ',' id
+
+    ':'  shift, and go to state 117
+    ','  shift, and go to state 118
+
+
+State 73
+
+   44 ids: id .
+
+    $default  reduce using rule 44 (ids)
+
+
+State 74
+
+  102 null: TYPE_NULL .
+
+    $default  reduce using rule 102 (null)
+
+
+State 75
+
+   96 boolean: BOOL_TRUE .
+
+    $default  reduce using rule 96 (boolean)
+
+
+State 76
+
+   97 boolean: BOOL_FALSE .
+
+    $default  reduce using rule 97 (boolean)
+
+
+State 77
+
+  100 real: REAL .
+
+    $default  reduce using rule 100 (real)
+
+
+State 78
+
+  101 int: INT .
+
+    $default  reduce using rule 101 (int)
+
+
+State 79
+
+   99 char: CHAR .
+
+    $default  reduce using rule 99 (char)
+
+
+State 80
+
+   98 string: STRING .
+
+    $default  reduce using rule 98 (string)
+
+
+State 81
+
+   65 expression: NOT . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1025,9 +1156,9 @@ State 69
     null        go to state 96
 
 
-State 70
+State 82
 
-   58 while_statment: WHILE '(' . expression ')' block
+   72 expression: AMP . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1057,151 +1188,9 @@ State 70
     null        go to state 96
 
 
-State 71
-
-   59 for_statment: FOR '(' . for_cond ')' block
-
-    ID     shift, and go to state 11
-    DEREF  shift, and go to state 121
-
-    for_cond  go to state 122
-    init      go to state 123
-    lhs       go to state 124
-    id        go to state 98
-
-
-State 72
-
-   50 var_decls: VAR ids . ':' type ';'
-   51 ids: ids . ',' id
-
-    ':'  shift, and go to state 125
-    ','  shift, and go to state 126
-
-
-State 73
-
-   52 ids: id .
-
-    $default  reduce using rule 52 (ids)
-
-
-State 74
-
-  110 null: TYPE_NULL .
-
-    $default  reduce using rule 110 (null)
-
-
-State 75
-
-  104 boolean: BOOL_TRUE .
-
-    $default  reduce using rule 104 (boolean)
-
-
-State 76
-
-  105 boolean: BOOL_FALSE .
-
-    $default  reduce using rule 105 (boolean)
-
-
-State 77
-
-  108 real: REAL .
-
-    $default  reduce using rule 108 (real)
-
-
-State 78
-
-  109 int: INT .
-
-    $default  reduce using rule 109 (int)
-
-
-State 79
-
-  107 char: CHAR .
-
-    $default  reduce using rule 107 (char)
-
-
-State 80
-
-  106 string: STRING .
-
-    $default  reduce using rule 106 (string)
-
-
-State 81
-
-   73 expression: NOT . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 127
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 82
-
-   80 expression: AMP . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 128
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
 State 83
 
-   79 expression: DEREF . expression
+   71 expression: DEREF . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1217,7 +1206,7 @@ State 83
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 129
+    expression  go to state 121
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -1233,7 +1222,7 @@ State 83
 
 State 84
 
-   77 expression: '(' . expression ')'
+   69 expression: '(' . expression ')'
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1249,7 +1238,7 @@ State 84
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 130
+    expression  go to state 122
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -1265,138 +1254,138 @@ State 84
 
 State 85
 
-  102 len: '|' . id '|'
-  103    | '|' . string '|'
+   94 len: '|' . id '|'
+   95    | '|' . string '|'
 
     ID      shift, and go to state 11
     STRING  shift, and go to state 80
 
-    id      go to state 131
-    string  go to state 132
+    id      go to state 123
+    string  go to state 124
 
 
 State 86
 
-   36 the_ret: RETURN expression . ';'
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   28 the_ret: RETURN expression . ';'
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    ';'     shift, and go to state 133
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    ';'     shift, and go to state 125
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
 
 State 87
 
-   83 value: lhs .
+   75 value: lhs .
 
-    $default  reduce using rule 83 (value)
+    $default  reduce using rule 75 (value)
 
 
 State 88
 
-   78 expression: value .
+   70 expression: value .
 
-    $default  reduce using rule 78 (expression)
+    $default  reduce using rule 70 (expression)
 
 
 State 89
 
-   90 value: call .
+   82 value: call .
 
-    $default  reduce using rule 90 (value)
+    $default  reduce using rule 82 (value)
 
 
 State 90
 
-   89 value: len .
+   81 value: len .
 
-    $default  reduce using rule 89 (value)
+    $default  reduce using rule 81 (value)
 
 
 State 91
 
-   84 value: boolean .
+   76 value: boolean .
 
-    $default  reduce using rule 84 (value)
+    $default  reduce using rule 76 (value)
 
 
 State 92
 
-   85 value: string .
+   77 value: string .
 
-    $default  reduce using rule 85 (value)
+    $default  reduce using rule 77 (value)
 
 
 State 93
 
-   86 value: char .
+   78 value: char .
 
-    $default  reduce using rule 86 (value)
+    $default  reduce using rule 78 (value)
 
 
 State 94
 
-   87 value: real .
+   79 value: real .
 
-    $default  reduce using rule 87 (value)
+    $default  reduce using rule 79 (value)
 
 
 State 95
 
-   88 value: int .
+   80 value: int .
 
-    $default  reduce using rule 88 (value)
+    $default  reduce using rule 80 (value)
 
 
 State 96
 
-   91 value: null .
+   83 value: null .
 
-    $default  reduce using rule 91 (value)
+    $default  reduce using rule 83 (value)
 
 
 State 97
 
-   54 initign_statment: DEREF lhs . EQ expression semico
+   46 initign_statment: DEREF lhs . EQ expression semico
 
-    EQ  shift, and go to state 146
+    EQ  shift, and go to state 138
 
 
 State 98
 
-   81 lhs: id .
-   82    | id . '[' expression ']'
+   73 lhs: id .
+   74    | id . '[' expression ']'
 
     '['  shift, and go to state 104
 
-    $default  reduce using rule 81 (lhs)
+    $default  reduce using rule 73 (lhs)
 
 
 State 99
 
-   43 statment: '{' statmentss . '}'
-   48 statmentss: statmentss . statment
+   35 statment: '{' statmentss . '}'
+   40 statmentss: statmentss . statment
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -1408,7 +1397,7 @@ State 99
     ID      shift, and go to state 11
     DEREF   shift, and go to state 39
     '{'     shift, and go to state 40
-    '}'     shift, and go to state 147
+    '}'     shift, and go to state 139
 
     func              go to state 41
     proc              go to state 42
@@ -1433,14 +1422,14 @@ State 100
 
 State 101
 
-   48 statmentss: statmentss statment .
+   40 statmentss: statmentss statment .
 
-    $default  reduce using rule 48 (statmentss)
+    $default  reduce using rule 40 (statmentss)
 
 
 State 102
 
-   53 initign_statment: lhs EQ . expression semico
+   45 initign_statment: lhs EQ . expression semico
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1456,7 +1445,7 @@ State 102
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 148
+    expression  go to state 140
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -1472,7 +1461,7 @@ State 102
 
 State 103
 
-  101 call: id '(' . call_args ')'
+   93 call: id '(' . call_args ')'
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1490,10 +1479,10 @@ State 103
 
     $default  reduce using rule 17 (no_args)
 
-    no_args     go to state 149
-    call_args   go to state 150
-    args_2      go to state 151
-    expression  go to state 152
+    no_args     go to state 141
+    call_args   go to state 142
+    args_2      go to state 143
+    expression  go to state 144
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -1509,7 +1498,7 @@ State 103
 
 State 104
 
-   82 lhs: id '[' . expression ']'
+   74 lhs: id '[' . expression ']'
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1525,7 +1514,7 @@ State 104
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 153
+    expression  go to state 145
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -1541,16 +1530,16 @@ State 104
 
 State 105
 
-   47 semico: ';' .
+   39 semico: ';' .
 
-    $default  reduce using rule 47 (semico)
+    $default  reduce using rule 39 (semico)
 
 
 State 106
 
-   37 statment: call semico .
+   29 statment: call semico .
 
-    $default  reduce using rule 37 (statment)
+    $default  reduce using rule 29 (statment)
 
 
 State 107
@@ -1566,185 +1555,129 @@ State 107
     CHAR_PTR     shift, and go to state 63
     REAL_PTR     shift, and go to state 64
 
-    arg_type  go to state 154
+    arg_type  go to state 146
     type      go to state 66
 
 
 State 108
 
-   96 type: TYPE_STRING '[' . INT ']'
+   88 type: TYPE_STRING '[' . INT ']'
 
-    INT  shift, and go to state 155
+    INT  shift, and go to state 147
 
 
 State 109
-
-   30 return_va: TYPE_BOOL .
-
-    $default  reduce using rule 30 (return_va)
-
-
-State 110
-
-   29 return_va: TYPE_CHAR .
-
-    $default  reduce using rule 29 (return_va)
-
-
-State 111
-
-   28 return_va: TYPE_INT .
-
-    $default  reduce using rule 28 (return_va)
-
-
-State 112
-
-   31 return_va: TYPE_REAL .
-
-    $default  reduce using rule 31 (return_va)
-
-
-State 113
-
-   35 return_va: TYPE_STRING . '[' INT ']'
-
-    '['  shift, and go to state 156
-
-
-State 114
-
-   32 return_va: INT_PTR .
-
-    $default  reduce using rule 32 (return_va)
-
-
-State 115
-
-   33 return_va: CHAR_PTR .
-
-    $default  reduce using rule 33 (return_va)
-
-
-State 116
-
-   34 return_va: REAL_PTR .
-
-    $default  reduce using rule 34 (return_va)
-
-
-State 117
 
     7 func: FUNC proc_id '(' get_arg ')' RETURN continue_func .
 
     $default  reduce using rule 7 (func)
 
 
-State 118
+State 110
 
-   23 continue_func: return_va . '{' body '}'
+   23 continue_func: type . '{' body '}'
 
-    '{'  shift, and go to state 157
-
-
-State 119
-
-   55 if_statment: IF '(' expression . ')' statment else_statment
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-    ')'     shift, and go to state 158
+    '{'  shift, and go to state 148
 
 
-State 120
+State 111
 
-   58 while_statment: WHILE '(' expression . ')' block
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   47 if_statment: IF '(' expression . ')' statment else_statment
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-    ')'     shift, and go to state 159
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+    ')'     shift, and go to state 149
 
 
-State 121
+State 112
 
-   62 init: DEREF . lhs EQ expression
+   50 while_statment: WHILE '(' expression . ')' block
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+    ')'     shift, and go to state 150
+
+
+State 113
+
+   54 init: DEREF . lhs EQ expression
 
     ID  shift, and go to state 11
 
-    lhs  go to state 160
+    lhs  go to state 151
     id   go to state 98
 
 
-State 122
+State 114
 
-   59 for_statment: FOR '(' for_cond . ')' block
+   51 for_statment: FOR '(' for_cond . ')' block
 
-    ')'  shift, and go to state 161
+    ')'  shift, and go to state 152
 
 
-State 123
+State 115
 
-   60 for_cond: init . semico expression semico init
+   52 for_cond: init . semico expression semico init
 
     ';'  shift, and go to state 105
 
-    semico  go to state 162
+    semico  go to state 153
 
 
-State 124
+State 116
 
-   61 init: lhs . EQ expression
+   53 init: lhs . EQ expression
 
-    EQ  shift, and go to state 163
+    EQ  shift, and go to state 154
 
 
-State 125
+State 117
 
-   50 var_decls: VAR ids ':' . type ';'
+   42 var_decls: VAR ids ':' . type ';'
 
     TYPE_BOOL    shift, and go to state 57
     TYPE_CHAR    shift, and go to state 58
@@ -1755,145 +1688,433 @@ State 125
     CHAR_PTR     shift, and go to state 63
     REAL_PTR     shift, and go to state 64
 
-    type  go to state 164
+    type  go to state 155
+
+
+State 118
+
+   43 ids: ids ',' . id
+
+    ID  shift, and go to state 11
+
+    id  go to state 156
+
+
+State 119
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   65           | NOT expression .
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 65 (expression)
+
+
+State 120
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+   72           | AMP expression .
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 72 (expression)
+
+
+State 121
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+   71           | DEREF expression .
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 71 (expression)
+
+
+State 122
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+   69           | '(' expression . ')'
+
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+    ')'     shift, and go to state 157
+
+
+State 123
+
+   94 len: '|' id . '|'
+
+    '|'  shift, and go to state 158
+
+
+State 124
+
+   95 len: '|' string . '|'
+
+    '|'  shift, and go to state 159
+
+
+State 125
+
+   28 the_ret: RETURN expression ';' .
+
+    $default  reduce using rule 28 (the_ret)
 
 
 State 126
 
-   51 ids: ids ',' . id
+   68 expression: expression AND . expression
 
-    ID  shift, and go to state 11
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
 
-    id  go to state 165
+    expression  go to state 160
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 127
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   73           | NOT expression .
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   59 expression: expression DIVIDE . expression
 
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
 
-    $default  reduce using rule 73 (expression)
+    expression  go to state 161
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 128
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-   80           | AMP expression .
+   60 expression: expression EQEQ . expression
 
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
 
-    $default  reduce using rule 80 (expression)
+    expression  go to state 162
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 129
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-   79           | DEREF expression .
+   61 expression: expression GT . expression
 
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
 
-    $default  reduce using rule 79 (expression)
+    expression  go to state 163
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 130
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-   77           | '(' expression . ')'
+   62 expression: expression GTE . expression
 
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-    ')'     shift, and go to state 166
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 164
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 131
 
-  102 len: '|' id . '|'
+   63 expression: expression LT . expression
 
-    '|'  shift, and go to state 167
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 165
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 132
 
-  103 len: '|' string . '|'
+   64 expression: expression LTE . expression
 
-    '|'  shift, and go to state 168
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 166
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 133
 
-   36 the_ret: RETURN expression ';' .
+   57 expression: expression MINUS . expression
 
-    $default  reduce using rule 36 (the_ret)
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 167
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
 
 
 State 134
 
-   76 expression: expression AND . expression
+   66 expression: expression NOTEQ . expression
+
+    TYPE_NULL   shift, and go to state 74
+    BOOL_TRUE   shift, and go to state 75
+    BOOL_FALSE  shift, and go to state 76
+    REAL        shift, and go to state 77
+    ID          shift, and go to state 11
+    INT         shift, and go to state 78
+    CHAR        shift, and go to state 79
+    STRING      shift, and go to state 80
+    NOT         shift, and go to state 81
+    AMP         shift, and go to state 82
+    DEREF       shift, and go to state 83
+    '('         shift, and go to state 84
+    '|'         shift, and go to state 85
+
+    expression  go to state 168
+    lhs         go to state 87
+    value       go to state 88
+    id          go to state 53
+    call        go to state 89
+    len         go to state 90
+    boolean     go to state 91
+    string      go to state 92
+    char        go to state 93
+    real        go to state 94
+    int         go to state 95
+    null        go to state 96
+
+
+State 135
+
+   67 expression: expression OR . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1923,9 +2144,9 @@ State 134
     null        go to state 96
 
 
-State 135
+State 136
 
-   67 expression: expression DIVIDE . expression
+   56 expression: expression PLUS . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1955,9 +2176,9 @@ State 135
     null        go to state 96
 
 
-State 136
+State 137
 
-   68 expression: expression EQEQ . expression
+   58 expression: expression MUL . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -1987,9 +2208,9 @@ State 136
     null        go to state 96
 
 
-State 137
+State 138
 
-   69 expression: expression GT . expression
+   46 initign_statment: DEREF lhs EQ . expression semico
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -2019,445 +2240,150 @@ State 137
     null        go to state 96
 
 
-State 138
-
-   70 expression: expression GTE . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 173
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
 State 139
 
-   71 expression: expression LT . expression
+   35 statment: '{' statmentss '}' .
 
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 174
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
+    $default  reduce using rule 35 (statment)
 
 
 State 140
 
-   72 expression: expression LTE . expression
+   45 initign_statment: lhs EQ expression . semico
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
+    ';'     shift, and go to state 105
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
-    expression  go to state 175
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
+    semico  go to state 173
 
 
 State 141
-
-   65 expression: expression MINUS . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 176
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 142
-
-   74 expression: expression NOTEQ . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 177
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 143
-
-   75 expression: expression OR . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 178
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 144
-
-   64 expression: expression PLUS . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 179
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 145
-
-   66 expression: expression MUL . expression
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 180
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 146
-
-   54 initign_statment: DEREF lhs EQ . expression semico
-
-    TYPE_NULL   shift, and go to state 74
-    BOOL_TRUE   shift, and go to state 75
-    BOOL_FALSE  shift, and go to state 76
-    REAL        shift, and go to state 77
-    ID          shift, and go to state 11
-    INT         shift, and go to state 78
-    CHAR        shift, and go to state 79
-    STRING      shift, and go to state 80
-    NOT         shift, and go to state 81
-    AMP         shift, and go to state 82
-    DEREF       shift, and go to state 83
-    '('         shift, and go to state 84
-    '|'         shift, and go to state 85
-
-    expression  go to state 181
-    lhs         go to state 87
-    value       go to state 88
-    id          go to state 53
-    call        go to state 89
-    len         go to state 90
-    boolean     go to state 91
-    string      go to state 92
-    char        go to state 93
-    real        go to state 94
-    int         go to state 95
-    null        go to state 96
-
-
-State 147
-
-   43 statment: '{' statmentss '}' .
-
-    $default  reduce using rule 43 (statment)
-
-
-State 148
-
-   53 initign_statment: lhs EQ expression . semico
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    ';'     shift, and go to state 105
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    semico  go to state 182
-
-
-State 149
 
    19 call_args: no_args .
 
     $default  reduce using rule 19 (call_args)
 
 
-State 150
+State 142
 
-  101 call: id '(' call_args . ')'
+   93 call: id '(' call_args . ')'
 
-    ')'  shift, and go to state 183
+    ')'  shift, and go to state 174
 
 
-State 151
+State 143
 
    18 call_args: args_2 .
    21 args_2: args_2 . ',' expression
 
-    ','  shift, and go to state 184
+    ','  shift, and go to state 175
 
     $default  reduce using rule 18 (call_args)
 
 
-State 152
+State 144
 
    20 args_2: expression .
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
     $default  reduce using rule 20 (args_2)
 
 
-State 153
+State 145
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-   82 lhs: id '[' expression . ']'
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+   74 lhs: id '[' expression . ']'
 
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-    ']'     shift, and go to state 185
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+    ']'     shift, and go to state 176
 
 
-State 154
+State 146
 
    14 yes_args: yes_args ';' args ':' arg_type .
 
     $default  reduce using rule 14 (yes_args)
 
 
-State 155
+State 147
 
-   96 type: TYPE_STRING '[' INT . ']'
+   88 type: TYPE_STRING '[' INT . ']'
 
-    ']'  shift, and go to state 186
-
-
-State 156
-
-   35 return_va: TYPE_STRING '[' . INT ']'
-
-    INT  shift, and go to state 187
+    ']'  shift, and go to state 177
 
 
-State 157
+State 148
 
-   23 continue_func: return_va '{' . body '}'
+   23 continue_func: type '{' . body '}'
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -2474,7 +2400,7 @@ State 157
 
     func              go to state 41
     proc              go to state 42
-    body              go to state 188
+    body              go to state 178
     the_ret           go to state 44
     statment          go to state 45
     statmentss        go to state 46
@@ -2488,38 +2414,9 @@ State 157
     call              go to state 54
 
 
-State 158
+State 149
 
-   55 if_statment: IF '(' expression ')' . statment else_statment
-
-    IF      shift, and go to state 33
-    WHILE   shift, and go to state 34
-    FOR     shift, and go to state 35
-    PROC    shift, and go to state 36
-    FUNC    shift, and go to state 6
-    VAR     shift, and go to state 37
-    RETURN  shift, and go to state 38
-    ID      shift, and go to state 11
-    DEREF   shift, and go to state 39
-    '{'     shift, and go to state 40
-
-    func              go to state 41
-    proc              go to state 42
-    the_ret           go to state 44
-    statment          go to state 189
-    var_decls         go to state 47
-    initign_statment  go to state 48
-    if_statment       go to state 49
-    while_statment    go to state 50
-    for_statment      go to state 51
-    lhs               go to state 52
-    id                go to state 53
-    call              go to state 54
-
-
-State 159
-
-   58 while_statment: WHILE '(' expression ')' . block
+   47 if_statment: IF '(' expression ')' . statment else_statment
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -2535,28 +2432,20 @@ State 159
     func              go to state 41
     proc              go to state 42
     the_ret           go to state 44
-    statment          go to state 190
+    statment          go to state 179
     var_decls         go to state 47
     initign_statment  go to state 48
     if_statment       go to state 49
     while_statment    go to state 50
     for_statment      go to state 51
-    block             go to state 191
     lhs               go to state 52
     id                go to state 53
     call              go to state 54
 
 
-State 160
+State 150
 
-   62 init: DEREF lhs . EQ expression
-
-    EQ  shift, and go to state 192
-
-
-State 161
-
-   59 for_statment: FOR '(' for_cond ')' . block
+   50 while_statment: WHILE '(' expression ')' . block
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -2572,21 +2461,58 @@ State 161
     func              go to state 41
     proc              go to state 42
     the_ret           go to state 44
-    statment          go to state 190
+    statment          go to state 180
     var_decls         go to state 47
     initign_statment  go to state 48
     if_statment       go to state 49
     while_statment    go to state 50
     for_statment      go to state 51
-    block             go to state 193
+    block             go to state 181
     lhs               go to state 52
     id                go to state 53
     call              go to state 54
 
 
-State 162
+State 151
 
-   60 for_cond: init semico . expression semico init
+   54 init: DEREF lhs . EQ expression
+
+    EQ  shift, and go to state 182
+
+
+State 152
+
+   51 for_statment: FOR '(' for_cond ')' . block
+
+    IF      shift, and go to state 33
+    WHILE   shift, and go to state 34
+    FOR     shift, and go to state 35
+    PROC    shift, and go to state 36
+    FUNC    shift, and go to state 6
+    VAR     shift, and go to state 37
+    RETURN  shift, and go to state 38
+    ID      shift, and go to state 11
+    DEREF   shift, and go to state 39
+    '{'     shift, and go to state 40
+
+    func              go to state 41
+    proc              go to state 42
+    the_ret           go to state 44
+    statment          go to state 180
+    var_decls         go to state 47
+    initign_statment  go to state 48
+    if_statment       go to state 49
+    while_statment    go to state 50
+    for_statment      go to state 51
+    block             go to state 183
+    lhs               go to state 52
+    id                go to state 53
+    call              go to state 54
+
+
+State 153
+
+   52 for_cond: init semico . expression semico init
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -2602,7 +2528,7 @@ State 162
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 194
+    expression  go to state 184
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -2616,9 +2542,9 @@ State 162
     null        go to state 96
 
 
-State 163
+State 154
 
-   61 init: lhs EQ . expression
+   53 init: lhs EQ . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -2634,7 +2560,7 @@ State 163
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 195
+    expression  go to state 185
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -2648,374 +2574,380 @@ State 163
     null        go to state 96
 
 
-State 164
+State 155
 
-   50 var_decls: VAR ids ':' type . ';'
+   42 var_decls: VAR ids ':' type . ';'
 
-    ';'  shift, and go to state 196
-
-
-State 165
-
-   51 ids: ids ',' id .
-
-    $default  reduce using rule 51 (ids)
+    ';'  shift, and go to state 186
 
 
-State 166
+State 156
 
-   77 expression: '(' expression ')' .
+   43 ids: ids ',' id .
 
-    $default  reduce using rule 77 (expression)
-
-
-State 167
-
-  102 len: '|' id '|' .
-
-    $default  reduce using rule 102 (len)
+    $default  reduce using rule 43 (ids)
 
 
-State 168
+State 157
 
-  103 len: '|' string '|' .
-
-    $default  reduce using rule 103 (len)
-
-
-State 169
-
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-   76           | expression AND expression .
-
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 76 (expression)
-
-
-State 170
-
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   67           | expression DIVIDE expression .
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    $default  reduce using rule 67 (expression)
-
-
-State 171
-
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   68           | expression EQEQ expression .
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 68 (expression)
-
-
-State 172
-
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   69           | expression GT expression .
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+   69 expression: '(' expression ')' .
 
     $default  reduce using rule 69 (expression)
 
 
-State 173
+State 158
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   70           | expression GTE expression .
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   94 len: '|' id '|' .
 
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 70 (expression)
+    $default  reduce using rule 94 (len)
 
 
-State 174
+State 159
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   71           | expression LT expression .
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   95 len: '|' string '|' .
 
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 71 (expression)
+    $default  reduce using rule 95 (len)
 
 
-State 175
+State 160
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   72           | expression LTE expression .
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+   68           | expression AND expression .
 
-    DIVIDE  shift, and go to state 135
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
-    $default  reduce using rule 72 (expression)
-
-
-State 176
-
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   65           | expression MINUS expression .
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    $default  reduce using rule 65 (expression)
+    $default  reduce using rule 68 (expression)
 
 
-State 177
+State 161
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   74           | expression NOTEQ expression .
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   59           | expression DIVIDE expression .
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 74 (expression)
+    $default  reduce using rule 59 (expression)
 
 
-State 178
+State 162
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   75           | expression OR expression .
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   60           | expression EQEQ expression .
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
-    $default  reduce using rule 75 (expression)
+    $default  reduce using rule 60 (expression)
 
 
-State 179
+State 163
 
-   64 expression: expression . PLUS expression
-   64           | expression PLUS expression .
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   61           | expression GT expression .
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 61 (expression)
+
+
+State 164
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   62           | expression GTE expression .
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 62 (expression)
+
+
+State 165
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   63           | expression LT expression .
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 63 (expression)
+
+
+State 166
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   64           | expression LTE expression .
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
     $default  reduce using rule 64 (expression)
 
 
-State 180
+State 167
 
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   66           | expression MUL expression .
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   57           | expression MINUS expression .
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 57 (expression)
+
+
+State 168
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   66           | expression NOTEQ expression .
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
     $default  reduce using rule 66 (expression)
 
 
-State 181
+State 169
 
-   54 initign_statment: DEREF lhs EQ expression . semico
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   67           | expression OR expression .
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 67 (expression)
+
+
+State 170
+
+   56 expression: expression . PLUS expression
+   56           | expression PLUS expression .
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    DIVIDE  shift, and go to state 127
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 56 (expression)
+
+
+State 171
+
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   58           | expression MUL expression .
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    $default  reduce using rule 58 (expression)
+
+
+State 172
+
+   46 initign_statment: DEREF lhs EQ expression . semico
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
     ';'     shift, and go to state 105
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
-    semico  go to state 197
-
-
-State 182
-
-   53 initign_statment: lhs EQ expression semico .
-
-    $default  reduce using rule 53 (initign_statment)
+    semico  go to state 187
 
 
-State 183
+State 173
 
-  101 call: id '(' call_args ')' .
+   45 initign_statment: lhs EQ expression semico .
 
-    $default  reduce using rule 101 (call)
+    $default  reduce using rule 45 (initign_statment)
 
 
-State 184
+State 174
+
+   93 call: id '(' call_args ')' .
+
+    $default  reduce using rule 93 (call)
+
+
+State 175
 
    21 args_2: args_2 ',' . expression
 
@@ -3033,7 +2965,7 @@ State 184
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 198
+    expression  go to state 188
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -3047,63 +2979,56 @@ State 184
     null        go to state 96
 
 
-State 185
+State 176
 
-   82 lhs: id '[' expression ']' .
+   74 lhs: id '[' expression ']' .
 
-    $default  reduce using rule 82 (lhs)
-
-
-State 186
-
-   96 type: TYPE_STRING '[' INT ']' .
-
-    $default  reduce using rule 96 (type)
+    $default  reduce using rule 74 (lhs)
 
 
-State 187
+State 177
 
-   35 return_va: TYPE_STRING '[' INT . ']'
+   88 type: TYPE_STRING '[' INT ']' .
 
-    ']'  shift, and go to state 199
-
-
-State 188
-
-   23 continue_func: return_va '{' body . '}'
-
-    '}'  shift, and go to state 200
+    $default  reduce using rule 88 (type)
 
 
-State 189
+State 178
 
-   55 if_statment: IF '(' expression ')' statment . else_statment
+   23 continue_func: type '{' body . '}'
 
-    ELSE  shift, and go to state 201
-
-    ELSE      [reduce using rule 57 (else_statment)]
-    $default  reduce using rule 57 (else_statment)
-
-    else_statment  go to state 202
+    '}'  shift, and go to state 189
 
 
-State 190
+State 179
 
-   63 block: statment .
+   47 if_statment: IF '(' expression ')' statment . else_statment
 
-    $default  reduce using rule 63 (block)
+    ELSE  shift, and go to state 190
 
+    ELSE      [reduce using rule 49 (else_statment)]
+    $default  reduce using rule 49 (else_statment)
 
-State 191
-
-   58 while_statment: WHILE '(' expression ')' block .
-
-    $default  reduce using rule 58 (while_statment)
+    else_statment  go to state 191
 
 
-State 192
+State 180
 
-   62 init: DEREF lhs EQ . expression
+   55 block: statment .
+
+    $default  reduce using rule 55 (block)
+
+
+State 181
+
+   50 while_statment: WHILE '(' expression ')' block .
+
+    $default  reduce using rule 50 (while_statment)
+
+
+State 182
+
+   54 init: DEREF lhs EQ . expression
 
     TYPE_NULL   shift, and go to state 74
     BOOL_TRUE   shift, and go to state 75
@@ -3119,7 +3044,7 @@ State 192
     '('         shift, and go to state 84
     '|'         shift, and go to state 85
 
-    expression  go to state 203
+    expression  go to state 192
     lhs         go to state 87
     value       go to state 88
     id          go to state 53
@@ -3133,141 +3058,134 @@ State 192
     null        go to state 96
 
 
-State 193
+State 183
 
-   59 for_statment: FOR '(' for_cond ')' block .
+   51 for_statment: FOR '(' for_cond ')' block .
 
-    $default  reduce using rule 59 (for_statment)
+    $default  reduce using rule 51 (for_statment)
 
 
-State 194
+State 184
 
-   60 for_cond: init semico expression . semico init
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   52 for_cond: init semico expression . semico init
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
     ';'     shift, and go to state 105
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
-    semico  go to state 204
-
-
-State 195
-
-   61 init: lhs EQ expression .
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 61 (init)
+    semico  go to state 193
 
 
-State 196
+State 185
 
-   50 var_decls: VAR ids ':' type ';' .
+   53 init: lhs EQ expression .
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    $default  reduce using rule 50 (var_decls)
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 53 (init)
 
 
-State 197
+State 186
 
-   54 initign_statment: DEREF lhs EQ expression semico .
+   42 var_decls: VAR ids ':' type ';' .
 
-    $default  reduce using rule 54 (initign_statment)
+    $default  reduce using rule 42 (var_decls)
 
 
-State 198
+State 187
+
+   46 initign_statment: DEREF lhs EQ expression semico .
+
+    $default  reduce using rule 46 (initign_statment)
+
+
+State 188
 
    21 args_2: args_2 ',' expression .
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
 
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
 
     $default  reduce using rule 21 (args_2)
 
 
-State 199
+State 189
 
-   35 return_va: TYPE_STRING '[' INT ']' .
-
-    $default  reduce using rule 35 (return_va)
-
-
-State 200
-
-   23 continue_func: return_va '{' body '}' .
+   23 continue_func: type '{' body '}' .
 
     $default  reduce using rule 23 (continue_func)
 
 
-State 201
+State 190
 
-   56 else_statment: ELSE . statment
+   48 else_statment: ELSE . statment
 
     IF      shift, and go to state 33
     WHILE   shift, and go to state 34
@@ -3283,7 +3201,7 @@ State 201
     func              go to state 41
     proc              go to state 42
     the_ret           go to state 44
-    statment          go to state 205
+    statment          go to state 194
     var_decls         go to state 47
     initign_statment  go to state 48
     if_statment       go to state 49
@@ -3294,66 +3212,66 @@ State 201
     call              go to state 54
 
 
-State 202
+State 191
 
-   55 if_statment: IF '(' expression ')' statment else_statment .
+   47 if_statment: IF '(' expression ')' statment else_statment .
 
-    $default  reduce using rule 55 (if_statment)
-
-
-State 203
-
-   62 init: DEREF lhs EQ expression .
-   64 expression: expression . PLUS expression
-   65           | expression . MINUS expression
-   66           | expression . MUL expression
-   67           | expression . DIVIDE expression
-   68           | expression . EQEQ expression
-   69           | expression . GT expression
-   70           | expression . GTE expression
-   71           | expression . LT expression
-   72           | expression . LTE expression
-   74           | expression . NOTEQ expression
-   75           | expression . OR expression
-   76           | expression . AND expression
-
-    AND     shift, and go to state 134
-    DIVIDE  shift, and go to state 135
-    EQEQ    shift, and go to state 136
-    GT      shift, and go to state 137
-    GTE     shift, and go to state 138
-    LT      shift, and go to state 139
-    LTE     shift, and go to state 140
-    MINUS   shift, and go to state 141
-    NOTEQ   shift, and go to state 142
-    OR      shift, and go to state 143
-    PLUS    shift, and go to state 144
-    MUL     shift, and go to state 145
-
-    $default  reduce using rule 62 (init)
+    $default  reduce using rule 47 (if_statment)
 
 
-State 204
+State 192
 
-   60 for_cond: init semico expression semico . init
+   54 init: DEREF lhs EQ expression .
+   56 expression: expression . PLUS expression
+   57           | expression . MINUS expression
+   58           | expression . MUL expression
+   59           | expression . DIVIDE expression
+   60           | expression . EQEQ expression
+   61           | expression . GT expression
+   62           | expression . GTE expression
+   63           | expression . LT expression
+   64           | expression . LTE expression
+   66           | expression . NOTEQ expression
+   67           | expression . OR expression
+   68           | expression . AND expression
+
+    AND     shift, and go to state 126
+    DIVIDE  shift, and go to state 127
+    EQEQ    shift, and go to state 128
+    GT      shift, and go to state 129
+    GTE     shift, and go to state 130
+    LT      shift, and go to state 131
+    LTE     shift, and go to state 132
+    MINUS   shift, and go to state 133
+    NOTEQ   shift, and go to state 134
+    OR      shift, and go to state 135
+    PLUS    shift, and go to state 136
+    MUL     shift, and go to state 137
+
+    $default  reduce using rule 54 (init)
+
+
+State 193
+
+   52 for_cond: init semico expression semico . init
 
     ID     shift, and go to state 11
-    DEREF  shift, and go to state 121
+    DEREF  shift, and go to state 113
 
-    init  go to state 206
-    lhs   go to state 124
+    init  go to state 195
+    lhs   go to state 116
     id    go to state 98
 
 
-State 205
+State 194
 
-   56 else_statment: ELSE statment .
+   48 else_statment: ELSE statment .
 
-    $default  reduce using rule 56 (else_statment)
+    $default  reduce using rule 48 (else_statment)
 
 
-State 206
+State 195
 
-   60 for_cond: init semico expression semico init .
+   52 for_cond: init semico expression semico init .
 
-    $default  reduce using rule 60 (for_cond)
+    $default  reduce using rule 52 (for_cond)
