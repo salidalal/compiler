@@ -19,6 +19,11 @@ typedef struct Node{
 	int size;
 	struct Node *parent;
 	char *value;
+
+    char* var;
+    char* code;
+
+
 } Node;
 
 
@@ -41,7 +46,7 @@ int getSonsIndex(Node *, Node *);
 typedef enum 
 { 
     VARIABLE,
-    FUNCTION  
+    METHOD  
 } variableType;
 
 typedef enum{

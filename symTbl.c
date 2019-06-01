@@ -518,7 +518,7 @@ void checkCall(Node *callNode){
     Symbol *sym = tbl->head; 
     char *curType = NULL;
     
-    int i, curNum = 0, expNumArgs = tblSize(tbl);;
+    int i, curNum = 0, expNumArgs = tblSize(tbl);
 
     if(!MethodNode){
         pushErr(concat(nodeArgs->value," is Not defined - Define Function Befor Call"));
@@ -596,7 +596,7 @@ void initScopes(Node *node){
         scopeNode = findScopeNode(node);
         if(scopeNode){      
             if(!strcmp(strId, "PROC") || !strcmp(strId, "FUNC")){    
-            newSym = createSymbol(node->sons[0]->value, strId, NULL, FUNCTION);
+            newSym = createSymbol(node->sons[0]->value, strId, NULL, METHOD);
             table = findTbl(scopeNode);
             if(!addSymbol(table, newSym))
                 pushErr("Method definition is already exsist");
@@ -654,9 +654,9 @@ void checkMain(Node *code){
         
         case 1:
             if(strcmp(value, "Main"))
-                pushErr("Main function must be the last method declared");
+                pushErr("Main proc must be the last method declared");
                 break;
-        default: pushErr("More than one Main function declared");
+        default: pushErr("More than one Main proc declared");
     }
 }
 

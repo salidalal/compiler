@@ -38,16 +38,18 @@ void printTree(Node* tree){
 }
 
 
-Node *makeNode( char *value, ...)
+Node *makeNode( char *value,char*var,char*code, ...)
 {
 	int i, count = 0;
     va_list countPointer, listPointer;
     Node *newNode = (Node *) malloc (sizeof(Node));
     Node *getArg = NULL;
 
+
     //Initializing token
-    newNode->value = (char *) malloc ((strlen(value)+1)*sizeof(char));
-    strcpy(newNode->value, value);
+    newNode->value = concat("",value);
+    newNode->var = concat("",var);
+    newNode->code = concat("",code);
     //Counting number of arguments passed
     va_start(countPointer, value);
     do{
@@ -138,12 +140,6 @@ void printNode(Node *n,int tab)
         }
         printf(")\n"); 
 	}
-	
-
-
-
-
-	
 }
 
 
@@ -163,7 +159,7 @@ void printer(Node*n){
     for (i = 0; i < n->size; i++) 
 	
         printer((n->sons)[i]);
-}
+    }
 }
 
 

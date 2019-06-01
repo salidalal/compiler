@@ -317,7 +317,7 @@ void closeTree(){
 	initScopes(tree);
 
 	printf("\nScopes:\n");
-	printScopes();
+	//printScopes();
 	checks(tree, 1);
     errorSummary();
 
